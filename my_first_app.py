@@ -40,7 +40,7 @@ if inp != None:
 
     st.text('Please wait... The process takes a lot of time.')
         
-    page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
+    page = requests.get('https://tags.literotica.com/' + inp + '/', headers = headers)
     soup = bs(page.content, 'html.parser')
     
     if page != None:
