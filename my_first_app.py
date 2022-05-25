@@ -36,6 +36,8 @@ st.text('Can be used for story validation.')
 
 inp = st.text_input('Enter a keyword')
 
+k = 0
+
 if inp != None:
 
     st.text('Please wait... The process takes a lot of time.')
