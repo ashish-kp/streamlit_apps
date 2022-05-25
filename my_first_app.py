@@ -45,7 +45,6 @@ if inp != None:
     
     if page != None:
         st.text('This is an unused tag')
-        break
 
     content = soup.find('div', class_ = 'L_gH')
     
