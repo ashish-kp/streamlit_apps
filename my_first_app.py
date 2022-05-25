@@ -39,8 +39,14 @@ inp = st.text_input('Enter a keyword')
 if inp != None:
 
     st.text('Please wait... The process takes a lot of time.')
+    
+    if len(inp) == 1:
+        k = inp
+    elif len(inp) == 2:
+        dummy = inp.split(' ')
+        k = '%20'.join(dummy)
 
-    page = requests.get('https://tags.literotica.com/' + inp + '/', headers = headers)
+    page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
     soup = bs(page.content, 'html.parser')
     
     if page != None:
