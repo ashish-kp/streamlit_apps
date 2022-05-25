@@ -37,19 +37,10 @@ st.text('Can be used for story validation.')
 inp = st.text_input('Enter a keyword')
 
 if inp != None:
-    
-    k = 0
 
     st.text('Please wait... The process takes a lot of time.')
-    
-    if len(inp) == 1:
-        k = inp
-        page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
-    elif len(inp) == 2:
-        dummy = inp.split(' ')
-        k = '%20'.join(dummy)
-        page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
-
+        
+    page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
     soup = bs(page.content, 'html.parser')
     
     if page != None:
