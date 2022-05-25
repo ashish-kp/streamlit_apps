@@ -1,1 +1,5 @@
 matplotlib
+nltk
+wordcloud
+streamlit
+collections
