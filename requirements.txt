@@ -4,3 +4,4 @@ wordcloud
 streamlit
 collection
 keras
+tensorflow
