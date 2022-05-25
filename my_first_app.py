@@ -44,11 +44,12 @@ if inp != None:
     
     if len(inp) == 1:
         k = inp
+        page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
     elif len(inp) == 2:
         dummy = inp.split(' ')
         k = '%20'.join(dummy)
+        page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
 
-    page = requests.get('https://tags.literotica.com/' + k + '/', headers = headers)
     soup = bs(page.content, 'html.parser')
     
     if page != None:
