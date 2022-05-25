@@ -38,10 +38,13 @@ inp = st.text_input('Enter a keyword')
 
 if inp != None:
 
-    st.text('Please wait... The process takes some time.')
+    st.text('Please wait... The process takes a lot of time.')
 
     page = requests.get('https://tags.literotica.com/' + inp + '/', headers = headers)
     soup = bs(page.content, 'html.parser')
+    
+    if page != None:
+        st.text('This is an unused tag')
 
     content = soup.find('div', class_ = 'L_gH')
     
