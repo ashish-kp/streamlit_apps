@@ -9,7 +9,7 @@ import nltk
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
-stop = stopwords.words('english') + ['like']
+stop = stopwords.words('english') + ['like', 'said]
 from wordcloud import WordCloud
 import streamlit as st
 
