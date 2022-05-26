@@ -42,9 +42,6 @@ if inp != None:
         
     page = requests.get('https://tags.literotica.com/' + inp + '/', headers = headers)
     soup = bs(page.content, 'html.parser')
-    
-    if page != None:
-        st.text('This is an unused tag')
 
     content = soup.find('div', class_ = 'L_gH')
     
@@ -71,10 +68,12 @@ if inp != None:
 
         all = ''.join(stories)
 
-        st.text('Here\'s the WordCloud:')
+        st.text('The WordCloud is constructed')
 
         wordcloud = WordCloud(stopwords = stop,background_color = 'white',width=2500,height=2000).generate(all)
-
+        
+        st.text('Here is the WordCloud')
+        
         fig, ax = plt.subplots()
         ax.imshow(wordcloud)
         ax.axis('off')
