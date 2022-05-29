@@ -6,3 +6,4 @@ collection
 keras
 tensorflow
 streamlit-drawable-canvas
+cv2
