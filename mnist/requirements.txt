@@ -1,1 +1,8 @@
+matplotlib
+nltk
+wordcloud
+streamlit
+collection
+keras
+tensorflow
 streamlit-drawable-canvas
