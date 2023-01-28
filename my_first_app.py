@@ -64,7 +64,8 @@ if inp != None:
             page = requests.get(link, headers = headers)
             soup = bs(page.content, 'html.parser')
             story = soup.select('div.panel.article.aa_eQ')
-            stories.append(story[0].text)
+            if story:
+                stories.append(story[0].text)
 
         all = ''.join(stories)
 
