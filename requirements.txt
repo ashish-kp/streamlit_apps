@@ -6,3 +6,7 @@ collection
 keras
 tensorflow
 bs4
+qutip
+qiskit
+pandas
+numpy
