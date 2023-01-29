@@ -74,7 +74,7 @@ elif option == 'Mixed':
 	D = st.text_input("Enter D")	
 	if A != '' and B != '' and C != '' and D != '':
 		dens_mat = np.array([[complex(A.replace(' ', '')), complex(B.replace(' ', ''))], [complex(C.replace(' ', '')), complex(D.replace(' ', ''))]])
-		st.text(dens_mat)
+# 		st.text(dens_mat)
 		# plot_bloch_vector_from_dm(dens_mat)
 else:
 	pass
