@@ -165,6 +165,7 @@ if rng != "":
         # b = qut.Bloch()
         # b.add_points([b_x, b_y, b_z])
         # st.pyplot(b.render())
+        plt.figure(figsize = (5, 5))
         fig, ax = plt.subplots()
         for i in range(len(all_angles)):
             ax.scatter(all_angles[i][0], all_angles[i][1], s = 100)
