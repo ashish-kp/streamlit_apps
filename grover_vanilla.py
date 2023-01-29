@@ -145,7 +145,7 @@ if rng != "":
         # y = rotate_vec(x, ang_by_2 * 2)
         # all_angles.append(y)
 
-        while n > 0:
+        while n > 1:
             prev_vec = next_vec
             if prev_vec[1] > next_vec[1]:
                 break
