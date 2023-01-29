@@ -64,7 +64,7 @@ if option == 'Pure':
 		mean = np.sqrt(np.abs(alpha)**2 + np.abs(beta)**2)
 		m = np.array([alpha, beta]) * 1 / mean
 		dens_mat = density_mat_from_state_vec(m)
-		plot_bloch_vector_from_dm(dens_mat)
+		# plot_bloch_vector_from_dm(dens_mat)
 elif option == 'Mixed':
 	st.text("Enter the four components of the density matrix in the following way : ")
 	st.latex(r'''\begin{pmatrix}A & B \\ C & D \end{pmatrix}''')
@@ -75,6 +75,9 @@ elif option == 'Mixed':
 	if A != '' and B != '' and C != '' and D != '':
 		dens_mat = np.array([[complex(A.replace(' ', '')), complex(B.replace(' ', ''))], [complex(C.replace(' ', '')), complex(D.replace(' ', ''))]])
 		st.text(dens_mat)
-		plot_bloch_vector_from_dm(dens_mat)
+		# plot_bloch_vector_from_dm(dens_mat)
 else:
 	pass
+
+if st.button('Generate Bloch Sphere'):
+    plot_bloch_vector_from_dm(dens_mat)
