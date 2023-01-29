@@ -78,6 +78,7 @@ elif option == 'Mixed':
 		# plot_bloch_vector_from_dm(dens_mat)
 else:
 	pass
-
-if st.button('Generate Bloch Sphere'):
-    plot_bloch_vector_from_dm(dens_mat)
+dens_mat = np.array(dens_mat)
+if len(dens_mat.shape) == 2:
+    if st.button('Generate Bloch Sphere'):
+        plot_bloch_vector_from_dm(dens_mat)
