@@ -88,8 +88,8 @@ def generate_bin(n):
         arr.append(dec2bin_num(x))
     return arr
 st.title("Partial Transform of a Single Qubit")
-n = st.text_input("Enter the number of qubits(less than 7)")
-if n != "" and int(n) < 7:
+n = st.text_input("Enter the number of qubits(less than 8)")
+if n != "" and int(n) < 8:
     n = int(n)
     st.text("Enter the value of A (greater than 1) such that:")
     st.latex("|\phi> = \sum_{n = 1}^{2^n} n\, mod\, A\,(Unnormalized)")
@@ -131,4 +131,4 @@ if n != "" and int(n) < 7:
             else:
                 st.text("The qubit value you have entered is more than the number of qubits \"n\" ")
 else:
-    st.text("Please enter a value less than 7")
+    st.text("Please enter a value less than 8")
