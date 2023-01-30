@@ -49,7 +49,7 @@ def nxn_valid_quantum(sqr_mat):
     if type(sqr_mat) != np.array:
         sqr_mat = np.array(sqr_mat)
     flag = True
-    if np.abs(np.sum(sqr_mat - complex_conjugate(sqr_mat))) != 0: 
+    if np.sum(sqr_mat == complex_conjugate(sqr_mat)) != (sqr_mat.shape[0] * sqr_mat.shape[1]): 
         raise ValueError("The given matrix is not Hermitian")
     for x in np.linalg.eigvals(sqr_mat):
         if x < (-1 * 10**-4): flag = False; raise ValueError("Negative eigen values")
