@@ -37,10 +37,20 @@ def trace(sqr_mat):
     else:
         return "Entered matrix is not a square matrix."
 
+def complex_conjugate(dens_mat):
+    if type(dens_mat) != np.array:
+        dens_mat = np.array(dens_mat)
+    for i in range(dens_mat.shape[0]):
+        for j in range(dens_mat.shape[1]):
+            dens_mat[i][j] = np.conj(dens_mat[i][j])
+    return dens_mat.T
+
 def nxn_valid_quantum(sqr_mat):
     if type(sqr_mat) != np.array:
         sqr_mat = np.array(sqr_mat)
     flag = True
+    if np.abs(np.sum(sqr_mat - complex_conjugate(sqr_mat))) != 0: 
+        raise ValueError("The given matrix is not Hermitian")
     for x in np.linalg.eigvals(sqr_mat):
         if x < (-1 * 10**-4): flag = False; raise ValueError("Negative eigen values")
     if trace(sqr_mat) < 0.999 or trace(sqr_mat) > 1.0001: flag = False; raise ValueError("Trace is not equal to 1")
