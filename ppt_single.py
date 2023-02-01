@@ -46,12 +46,7 @@ def trace(sqr_mat):
         return "Entered matrix is not a square matrix."
 
 def complex_conjugate(dens_mat):
-    if type(dens_mat) != np.array:
-        dens_mat = np.array(dens_mat)
-    for i in range(dens_mat.shape[0]):
-        for j in range(dens_mat.shape[1]):
-            dens_mat[i][j] = np.conj(dens_mat[i][j])
-    return dens_mat.T
+    return np.conj(dens_mat).T
 
 def nxn_valid_quantum(sqr_mat):
     if type(sqr_mat) != np.array:
