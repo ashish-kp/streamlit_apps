@@ -111,19 +111,23 @@ if n != "" and int(n) < 8:
                     part_qubit = n - qubit - 1
                     cnt = 0
                     ppt_dens = dens_mat
-                    # ppt_dens = np.zeros((2**n, 2**n))
+                    #ppt_dens = np.zeros((2**n, 2**n))
+                    ppt_dens = []
                     for i in range(2**n):
                         for j in range(2**n):
                             if all_binary[i][part_qubit] != all_binary[j][part_qubit]:
-                                dens_mat = density_mat_from_state_vec(normalize_state_vec([x % val for x in range(2**n)]))
+                                #dens_mat = density_mat_from_state_vec(normalize_state_vec([x % val for x in range(2**n)]))
                                 # old_i, old_j = arr2num(all_binary[i]), arr2num(all_binary[j])
                                 all_binary_2[i][part_qubit], all_binary_2[j][part_qubit] = all_binary[j][part_qubit], all_binary[i][part_qubit]
                                 # print(arr2num(all_binary[i]), arr2num(all_binary[j]), "New",arr2num(all_binary_2[i]), arr2num(all_binary_2[j]))
-                                ppt_dens[arr2num(all_binary[i])][arr2num(all_binary[j])] = dens_mat[arr2num(all_binary_2[i])][arr2num(all_binary_2[j])]
+                                #ppt_dens[arr2num(all_binary[i])][arr2num(all_binary[j])] = dens_mat[arr2num(all_binary_2[i])][arr2num(all_binary_2[j])]
+                                ppt_dens.append(dens_mat[arr2num(all_binary_2[i])][arr2num(all_binary_2[j])])
                                 # print(dens_mat, "\n", ppt_dens)
                             else:
                                 # print(i, j)
-                                ppt_dens[i][j] = dens_mat[i][j]
+                                #ppt_dens[i][j] = dens_mat[i][j]
+                                ppt_dens.append(dens_mat[i][j])
+                    ppt_dens = np.array(ppt_dens).reshape(2**n, 2**n)
                     fig, ax = plt.subplots()
                     ax.imshow(ppt_dens)
                     ax.axis('off')
