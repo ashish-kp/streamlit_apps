@@ -65,7 +65,7 @@ def concurrence(dens_mat):
         dens_mat = np.array(dens_mat)
     if nxn_valid_quantum(dens_mat) and dens_mat.shape[0] == 4 and dens_mat.shape[1] == 4:
         eta = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]])
-        fin = dens_mat @ eta @ complex_conjugate(dens_mat) @ eta 
+        fin = dens_mat @ eta @ dens_mat.T @ eta 
         eig_val_arr = np.linalg.eigvals(fin)
         r_v = sorted(eig_val_arr, reverse = True)
         val = np.sqrt(r_v[0])
@@ -119,6 +119,9 @@ elif option == 'Mixed':
         p1, p2, p3 = float(a.replace(' ', '')), float(b.replace(' ', '')), float(c.replace(' ', ''))
         p4 = 1 - p1 - p2 - p3
         dens_mat_mix = p1 * b_1 + p2 * b_2 + p3 * b_3 + p4 * b_4
-        if st.button("Do it!"):
-            ans_str = f"The concurrence is {concurrence(dens_mat_mix)} and the entanglement is {ent(dens_mat_mix)}"
-            st.text(ans_str)
+        if p1 + p2 + p3 + p4 != 1:
+            st.text("The given probabilities will not add upto 1, enter p1, p2, p3 such that p1 + p2 + p3 <= 1")
+        else:
+            if st.button("Do it!"):
+                ans_str = f"The concurrence is {concurrence(dens_mat_mix)} and the entanglement is {np.round(ent(dens_mat_mix), 5)}"
+                st.text(ans_str)
