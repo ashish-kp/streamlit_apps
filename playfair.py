@@ -102,11 +102,11 @@ key_clean = re.sub('[\W_]+', '', key.upper())
 plaintext = st.text_input("Enter the plaintext")
 my_algo = play_fair(key_clean, plaintext)
 if key != '' and plaintext != '':
-	if st.button("Do it!"):
-		key_mat = my_algo.gen_key()
-		st.text("The key matrix is \n")
-		st.text(str(key_mat))
-		enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
-		dec_text = f"The text recieved after decryption is {my_algo.decrypt()}"
-		st.text(enc_text)
-		st.text(dec_text)
+	dec_text = f"The text recieved after decryption is {my_algo.decrypt()}"
+	st.text(dec_text)
+	if st.button("Show the key and encrypted text"):
+			key_mat = my_algo.gen_key()
+			st.text("The key matrix is \n")
+			st.text(str(key_mat))
+			enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
+			st.text(enc_text)
