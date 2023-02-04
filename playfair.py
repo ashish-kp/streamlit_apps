@@ -107,6 +107,6 @@ if key != '' and plaintext != '':
 	if st.button("Show the key and encrypted text"):
 			key_mat = my_algo.gen_key()
 			st.text("The key matrix is \n")
-			st.text(str(key_mat))
+			st.write(np.array(key_mat))
 			enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
 			st.text(enc_text)
