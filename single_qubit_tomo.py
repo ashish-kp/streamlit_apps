@@ -68,5 +68,6 @@ Nh = st.text_input("Enter the number of counts detected in H (Nh)")
 Nv = st.text_input("Enter the number of counts detected in V (Nh)")
 Nd = st.text_input("Enter the number of counts detected in D (Nh)")
 Nr = st.text_input("Enter the number of counts detected in R (Nh)")
-if button("Do it!") and Nh != "" and Nv != "" and Nd != "" and Nr != "":
-    single_qubit_tomo([int(Nh), int(Nv), int(Nd), int(Nr)])
+if Nh != "" and Nv != "" and Nd != "" and Nr != "":
+    if button("Do it!"):
+        single_qubit_tomo([int(Nh), int(Nv), int(Nd), int(Nr)])
