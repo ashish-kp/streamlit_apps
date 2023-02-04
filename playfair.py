@@ -63,8 +63,11 @@ class play_fair:
                     encrypted_text.append(key_mat[int(x1)][int(y2)])
                     encrypted_text.append(key_mat[int(x2)][int(y1)]) 
         return "".join(encrypted_text)
-    def decrypt(self):
-        ciphertext = self.encrypt()
+    def decrypt(self, user_given = None):
+        if user_given:
+            ciphertext = user_given
+        else:
+            ciphertext = self.encrypt()
         key_mat = self.gen_key()
         decrypted_text = []
         for i in range(0, len(ciphertext), 2):
@@ -105,8 +108,11 @@ if key != '' and plaintext != '':
 	dec_text = f"The text recieved after decryption is {my_algo.decrypt()}"
 	st.text(dec_text)
 	if st.button("Show the key and encrypted text"):
-			key_mat = my_algo.gen_key()
-			st.text("The key matrix is \n")
-			st.write(np.array(key_mat))
-			enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
-			st.text(enc_text)
+		key_mat = my_algo.gen_key()
+		st.text("The key matrix is \n")
+		st.text(str(key_mat))
+		enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
+		st.text(enc_text)
+    if st.button("Check for your own ciphertext"):
+        ciph = st.text_input("Enter a ciphertext made with the above key, anything else will result in an error.")
+        st.text(my_algo.decrypt(re.sub('[\W_]+', '', ciph.upper())))
