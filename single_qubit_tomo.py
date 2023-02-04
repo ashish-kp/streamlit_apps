@@ -65,9 +65,9 @@ def single_qubit_tomo(arr):
 st.title("(Ideal) Single Qubit Tomography")
 st.text("We assume there is no absorption of the photons by the optical elements.")
 Nh = st.text_input("Enter the number of counts detected in H (Nh)")
-Nv = st.text_input("Enter the number of counts detected in V (Nh)")
-Nd = st.text_input("Enter the number of counts detected in D (Nh)")
-Nr = st.text_input("Enter the number of counts detected in R (Nh)")
+Nv = st.text_input("Enter the number of counts detected in V (Nv)")
+Nd = st.text_input("Enter the number of counts detected in D (Nd)")
+Nr = st.text_input("Enter the number of counts detected in R (Nr)")
 if Nh != "" and Nv != "" and Nd != "" and Nr != "":
     if button("Do it!"):
         single_qubit_tomo([int(Nh), int(Nv), int(Nd), int(Nr)])
