@@ -116,8 +116,8 @@ if key != '' and plaintext != '':
 		st.text(str(key_mat))
 		enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
 		st.text(enc_text)
-	if st.button("Check for your own ciphertext"):
-		ciph = st.text_input("Enter a ciphertext made with the above key, anything else will result in an error.")
-		if ciph != '':
-			if st.button("Do it!"):
-				st.write(my_algo.decrypt(re.sub('[\W_]+', '', ciph.upper())))
+# 	if st.button("Check for your own ciphertext"):
+# 		ciph = st.text_input("Enter a ciphertext made with the above key, anything else will result in an error.")
+# 		if ciph != '':
+# 			if st.button("Do it!"):
+# 				st.write(my_algo.decrypt(re.sub('[\W_]+', '', ciph.upper())))
