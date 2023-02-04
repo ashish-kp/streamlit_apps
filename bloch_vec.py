@@ -92,5 +92,5 @@ dens_mat = np.array(dens_mat)
 if len(dens_mat.shape) == 2:
     if st.button('Generate Bloch Sphere'):
 	_, x, y, z = stokes_vec_from_dens_mat(dens_mat)
-	st.write([x, y, z])
+	st.text([x, y, z])
         plot_bloch_vector_from_dm(dens_mat)
