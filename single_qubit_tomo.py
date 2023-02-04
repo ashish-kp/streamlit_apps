@@ -54,6 +54,8 @@ def dens_mat_from_stokes_vec(vec):
         for i in range(4):
             b = b + vec[i] * s[i]
         b = b / 2
+    ans_txt = f"The density matrix is {b}"
+    st.text(ans_txt)
     plot_bloch_vector_from_dm(b)
 
 def single_qubit_tomo(arr):
