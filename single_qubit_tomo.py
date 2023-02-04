@@ -61,7 +61,7 @@ def dens_mat_from_stokes_vec(vec):
 def single_qubit_tomo(arr):
     if len(arr) == 4:
         tot = arr[0] + arr[1]
-        single_qubit_tomo((2 * arr[2] - 1) / tot, (2 * arr[3] - 1) / tot, (arr[0] - arr[1]) / tot)
+        dens_mat_from_stokes_vec(1, (2 * arr[2] - 1) / tot, (2 * arr[3] - 1) / tot, (arr[0] - arr[1]) / tot)
 
 
 st.title("(Ideal) Single Qubit Tomography")
