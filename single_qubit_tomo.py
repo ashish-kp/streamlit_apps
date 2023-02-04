@@ -65,7 +65,7 @@ def single_qubit_tomo(arr):
         Pv = arr[1] / tot
         Pd = arr[2] / tot 
         Pr = arr[3] / tot
-        dens_mat_from_stokes_vec([1, 2 * Pd - 1, 2 * Pr - 1, Ph - Pv])
+        dens_mat_from_stokes_vec([1, 2 * Pd - 1, 1 - 2 * Pr, Ph - Pv])
 
 
 st.title("(Ideal) Single Qubit Tomography")
