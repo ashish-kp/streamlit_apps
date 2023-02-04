@@ -37,20 +37,10 @@ def trace(sqr_mat):
     else:
         return "Entered matrix is not a square matrix."
 
-def complex_conjugate(dens_mat):
-    if type(dens_mat) != np.array:
-        dens_mat = np.array(dens_mat)
-    for i in range(dens_mat.shape[0]):
-        for j in range(dens_mat.shape[1]):
-            dens_mat[i][j] = np.conj(dens_mat[i][j])
-    return dens_mat.T
-
 def nxn_valid_quantum(sqr_mat):
     if type(sqr_mat) != np.array:
         sqr_mat = np.array(sqr_mat)
     flag = True
-    if np.sum(sqr_mat == complex_conjugate(sqr_mat)) != (sqr_mat.shape[0] * sqr_mat.shape[1]): 
-        raise ValueError("The given matrix is not Hermitian")
     for x in np.linalg.eigvals(sqr_mat):
         if x < (-1 * 10**-4): flag = False; raise ValueError("Negative eigen values")
     if trace(sqr_mat) < 0.999 or trace(sqr_mat) > 1.0001: flag = False; raise ValueError("Trace is not equal to 1")
@@ -84,13 +74,13 @@ elif option == 'Mixed':
 	D = st.text_input("Enter D")	
 	if A != '' and B != '' and C != '' and D != '':
 		dens_mat = np.array([[complex(A.replace(' ', '')), complex(B.replace(' ', ''))], [complex(C.replace(' ', '')), complex(D.replace(' ', ''))]])
-# 		st.text(dens_mat)
+		st.text(dens_mat)
 		# plot_bloch_vector_from_dm(dens_mat)
 else:
 	pass
 dens_mat = np.array(dens_mat)
 if len(dens_mat.shape) == 2:
     if st.button('Generate Bloch Sphere'):
-	_, x, y, z = stokes_vec_from_dens_mat(dens_mat)
-	st.text([x, y, z])
+        _, x, y, z = stokes_vec_from_dens_mat(dens_mat)
+        st.text([x, y, z])
         plot_bloch_vector_from_dm(dens_mat)
