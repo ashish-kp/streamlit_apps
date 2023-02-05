@@ -78,7 +78,7 @@ class play_fair:
         for i in range(0, len(ciphertext), 2):
             x1, y1 = (np.where(key_mat == ciphertext[i]))
             x2, y2 = (np.where(key_mat == ciphertext[i + 1]))
-            if ciphertext[i] != ciphertext[i + 1] and ciphertext[i] != 'X':
+            if ciphertext[i] != ciphertext[i + 1]:
                 if int(y1) == int(y2):
                     decrypted_text.append(key_mat[(int(x1) - 1) % 6][int(y1)])
                     if key_mat[(int(x2) - 1) % 6][int(y2)] != 'X':
