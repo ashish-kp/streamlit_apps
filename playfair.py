@@ -116,7 +116,7 @@ if key != '' and plaintext != '':
 		key_mat = my_algo.gen_key()
 		st.text("The key matrix is \n")
 		st.write(np.array(key_mat))
-		enc_text = f"The text sent for encryption is {my_algo.encrypt()}"
+		enc_text = f"The text sent for decryption is {my_algo.encrypt()}"
 		st.text(enc_text)
 # 	if st.button("Check for your own ciphertext"):
 # 		ciph = st.text_input("Enter a ciphertext made with the above key, anything else will result in an error.")
