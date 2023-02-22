@@ -29,80 +29,50 @@ class play_fair:
     def encrypt(self):
         ptext0 = re.sub('[\W_]+', '', self.plaintext.upper())
         # print(ptext0, "plaintext")
-        if len(ptext0) % 2 != 0:
-            ptext0 = ptext0 + 'X'
+
         key_mat = self.gen_key()
-        encrypted_text = []
+        ptext1 = ptext0[0]
+        for i in range(1, len(ptext0)):
+            if ptext0[i] == ptext0[i - 1]:
+                ptext1 = ptext1 + 'X' + ptext0[i]
+            else:
+                ptext1 = ptext1 + ptext0[i]
+        if len(ptext1) % 2 != 0:
+            ptext1 = ptext1 + 'X'
         ptext = ""
         count = 0
-        while count < len(ptext0) - 1:
-            x1, y1 = (np.where(key_mat == ptext0[count]))
-            x2, y2 = (np.where(key_mat == ptext0[count + 1]))
-            if ptext0[count] == ptext0[count + 1]:
-                ptext = ptext + ptext0[count] + 'X'
+        print(ptext1)
+        for i in range(0, len(ptext1), 2):
+            x = (np.where(key_mat == ptext1[i]))
+            y = (np.where(key_mat == ptext1[i + 1]))
+            r1, c1, r2, c2 = x[0][0], x[1][0], y[0][0], y[1][0]
+            if r1 == r2:
+                ptext = ptext + key_mat[r1, (c1 + 1) % 6] + key_mat[r2, (c2 + 1) % 6]
+            elif c1 == c2:
+                ptext = ptext + key_mat[(r1 + 1) % 6, c1] + key_mat[(r2 + 1) % 6, c2]
             else:
-                ptext = ptext + ptext0[count] + ptext0[count + 1]
-                count += 1
-            count += 1
-            
-        # print(ptext, "after initialization")
-        for i in range(0, len(ptext), 2):
-            x1, y1 = (np.where(key_mat == ptext[i]))
-            x2, y2 = (np.where(key_mat == ptext[i + 1]))
-            
-            if ptext[i] != ptext[i + 1]:
-                # print(ptext[i], x1, x2, ptext[i + 1], y1, y2)
-                if int(y1) == int(y2):
-                    encrypted_text.append(key_mat[(int(x1) + 1) % 6][int(y1)])
-                    encrypted_text.append(key_mat[(int(x2) + 1) % 6][int(y2)])
-                    # print(key_mat[(int(x1) + 1) % 6][int(y1)], key_mat[(int(x2) + 1) % 6][int(y2)], (int(x1) + 1) % 6, y1, (int(x2) + 1) % 6, y2, "1")
-                elif int(x1) == int(x2):
-                    encrypted_text.append(key_mat[int(x1)][(int(y1) + 1) % 6])
-                    encrypted_text.append(key_mat[int(x2)][(int(y2) + 1) % 6])
-                    # print(key_mat[int(x1)][(int(y1) + 1) % 6], key_mat[int(x2)][(int(y2) + 1) % 6], x1, (int(y1) + 1) % 6, x2, (int(y2) + 1) % 6, "2")
-                else:
-                    encrypted_text.append(key_mat[int(x1)][int(y2)]) 
-                    encrypted_text.append(key_mat[int(x2)][int(y1)])
-                    # print(key_mat[int(x1)][int(y2)], key_mat[int(x2)][int(y1)], x1, y2, y1, x2, "3")
-            else:
-                # print(ptext[i], x1, x2, ptext[i + 1], y1, y2, "Next")
-                if ptext[i] == 'X' and ptext[i + 1] == 'X':
-                    encrypted_text.append(key_mat[int(x1)][(int(y1) + 1) % 6])
-                    encrypted_text.append(key_mat[int(x1)][(int(y1) + 1) % 6])
-        # print(ptext)
-        return "".join(encrypted_text)
+                ptext = ptext + key_mat[r1, c2] + key_mat[r2, c1]
+        return ptext
+
     def decrypt(self, user_given = None):
         if user_given:
             ciphertext = user_given.upper()
         else:
             ciphertext = self.encrypt()
         key_mat = self.gen_key()
-        decrypted_text = []
-        for i in range(0, len(ciphertext), 2):
-            x1, y1 = (np.where(key_mat == ciphertext[i]))
-            x2, y2 = (np.where(key_mat == ciphertext[i + 1]))
-            if ciphertext[i] != ciphertext[i + 1]:
-                if int(y1) == int(y2):
-                    decrypted_text.append(key_mat[(int(x1) - 1) % 6][int(y1)])
-                    if key_mat[(int(x2) - 1) % 6][int(y2)] != 'X':
-                        decrypted_text.append(key_mat[(int(x2) - 1) % 6][int(y2)])
-                elif int(x1) == int(x2):
-                    decrypted_text.append(key_mat[int(x1)][(int(y1) - 1) % 6])
-                    if key_mat[int(x2)][(int(y2) - 1) % 6] != 'X':
-                        decrypted_text.append(key_mat[int(x2)][(int(y2) - 1) % 6])
-                else:
-                    decrypted_text.append(key_mat[int(x1)][int(y2)]) 
-                    if key_mat[int(x2)][int(y1)] != 'X':
-                        decrypted_text.append(key_mat[int(x2)][int(y1)])
+        ptext1 = ciphertext
+        ptext = ''
+        for i in range(0, len(ptext1), 2):
+            x = (np.where(key_mat == ptext1[i]))
+            y = (np.where(key_mat == ptext1[i + 1]))
+            r1, c1, r2, c2 = x[0][0], x[1][0], y[0][0], y[1][0]
+            if r1 == r2:
+                ptext = ptext + key_mat[r1, (c1 - 1) % 6] + key_mat[r2, (c2 - 1) % 6]
+            elif c1 == c2:
+                ptext = ptext + key_mat[(r1 - 1) % 6, c1] + key_mat[(r2 - 1) % 6, c2]
             else:
-                # print(ciphertext[i], ciphertext[i + 1])
-                if ciphertext[i] == ciphertext[i + 1]:
-                    decrypted_text.append('X')
-                    # decrypted_text.append('X')
-                elif ciphertext[i] == 'X':
-                    print(ciphertext[i], ciphertext[i + 1], "Outside")
-                    decrypted_text.append(key_mat[(int(x1) - 1) % 6][int(y2)])
-        return "".join(decrypted_text)
+                ptext = ptext + key_mat[r1, c2] + key_mat[r2, c1]
+        return ptext
 
 st.title("Play Fair Encoding") 
 key = st.text_input("Enter a key (non-repetitive alphabets and numbers)")
