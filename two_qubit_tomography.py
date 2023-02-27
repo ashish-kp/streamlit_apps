@@ -111,7 +111,7 @@ def two_qubit_tomography(N_all, x0 = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], Singles 
     N_tot = (N_all[0] + N_all[1] + N_all[4] + N_all[5])
     N_all = np.array(N_all) / N_tot
     cons = [{'type': 'eq', 'fun': cons2}]
-    E = [1, 1, 1, 1]
+    E = [0.9998, 1.0146, 0.9195, 0.9265]
     E_all = []
     for x in E:
         for y in E:
@@ -135,22 +135,27 @@ def two_qubit_tomography(N_all, x0 = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], Singles 
 
 st.title("Two Qubit Tomography")
 
-a = st.text_input("HH")
-b = st.text_input("HV")
-c = st.text_input("HD")
-d = st.text_input("HL")
-e = st.text_input("VH")
-f = st.text_input("VV")
-g = st.text_input("VD")
-h = st.text_input("VL")
-j = st.text_input("DH")
-k = st.text_input("DV")
-l = st.text_input("DD")
-m = st.text_input("DL")
-n = st.text_input("LH")
-o = st.text_input("LV")
-p = st.text_input("LD")
-q = st.text_input("LL")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+	a = st.text_input("HH")
+	b = st.text_input("HV")
+	c = st.text_input("HD")
+	d = st.text_input("HL")
+with col2:
+	e = st.text_input("VH")
+	f = st.text_input("VV")
+	g = st.text_input("VD")
+	h = st.text_input("VL")
+with col3:
+	j = st.text_input("DH")
+	k = st.text_input("DV")
+	l = st.text_input("DD")
+	m = st.text_input("DL")
+with col4:
+	n = st.text_input("LH")
+	o = st.text_input("LV")
+	p = st.text_input("LD")
+	q = st.text_input("LL")
 
 if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != '' and h != '' and j != '' and k != '' and l != '' and m != '' and n != '' and o != '' and p != '' and q != '':
 
@@ -187,5 +192,4 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 	ax2.set_zlim(-1, 1)
 	if st.button("Do it"):
 		st.write(np.round(dens_mat_2, 3))
-		st.write(concurrence(dens_mat_2)[0])
 		st.pyplot(fig)
