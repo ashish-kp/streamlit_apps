@@ -187,4 +187,5 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 	ax2.set_zlim(-1, 1)
 	if st.button("Do it"):
 		st.write(np.round(dens_mat_2, 3))
+		st.write(concurrence(dens_mat_2)[0])
 		st.pyplot(fig)
