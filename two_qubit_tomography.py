@@ -111,7 +111,7 @@ def two_qubit_tomography(N_all, x0 = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], Singles 
     N_tot = (N_all[0] + N_all[1] + N_all[4] + N_all[5])
     N_all = np.array(N_all) / N_tot
     cons = [{'type': 'eq', 'fun': cons2}]
-    E = [0.9998, 1.0146, 0.9195, 0.9265]
+    E = [1, 1, 1, 1]
     E_all = []
     for x in E:
         for y in E:
