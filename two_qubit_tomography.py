@@ -161,16 +161,17 @@ def two_qubit_tomography(N_all, x0 = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], Singles 
 	res = minimize(objective_func_2, x0, method='SLSQP', constraints=cons)
 
 	return rho_from_t_2(res.x)
-
-st.title("Two Qubit Tomography")
+st.set_page_config(page_title = "Two Qubit Tomography(Beta)")
+st.title("Two Qubit Tomography (Beta)")
 
 st.text("""
 
 	This interface can be used to obtain 
 	the density matrix of a two qubit quantum system 
-	upto arbitrary precision.""")
+	upto arbitrary precision. Still requires a few corrections. This is but a prototype.""")
 
 # st.latex(r"""\rho""")
+
 st.text("Reference")
 st.write("http://research.physics.illinois.edu/QI/Photonics/tomography-files/amo_tomo_chapter.pdf")
 
