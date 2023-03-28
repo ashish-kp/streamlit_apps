@@ -170,7 +170,9 @@ st.text("""
 	the density matrix of a two qubit quantum system 
 	upto arbitrary precision.""")
 
-st.latex(r"""\rho""")
+# st.latex(r"""\rho""")
+st.text("Reference")
+st.write("http://research.physics.illinois.edu/QI/Photonics/tomography-files/amo_tomo_chapter.pdf")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
