@@ -4,6 +4,7 @@ import re
 import sqtdiat.qops as sq
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
+import scipy as sc
 
 # N_all = [1359,61,693,687,63,1695,1004,806,791,854,69,922,713,991,932,80]
 N_all = [1359, 61, 693, 886, 63, 1695, 1004, 894, 791, 854, 69, 809, 645, 971, 902, 76]
