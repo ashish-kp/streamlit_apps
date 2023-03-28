@@ -31,7 +31,7 @@ def sqrt_dens_mat(dens_mat):
         else:
             val = np.sqrt(eig_vals[i])
         iden[i] = val * iden[i]
-    print(iden)
+#     print(iden)
     return eig_vecs.T @ iden @ np.linalg.inv(eig_vecs.T)
 
 def fidelity(rho1, rho2):
@@ -41,10 +41,10 @@ def fidelity(rho1, rho2):
         rho2 = np.array(rho2)
     if rho1.shape == rho2.shape:
         if nxn_valid_quantum(rho1) and nxn_valid_quantum(rho2):
-            sqrt_rho1 = sqrt_dens_mat(rho1)
+            sqrt_rho1 = sc.linalg.sqrtm(rho1)
             val = sqrt_rho1 @ rho2 @ sqrt_rho1
             if np.imag(trace(val)) < 10e-4:
-                return np.round(np.real((trace(sqrt_dens_mat(val)))**2), 7)
+                return np.round(np.real((trace(sc.linalg.sqrtm(val)))**2), 7)
     else:
         raise ValueError(f"Given density matrices are not of same dimension {rho1.shape}, {rho2.shape}")
 
