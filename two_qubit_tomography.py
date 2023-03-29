@@ -245,7 +245,7 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 	N_all = []
 	for x in N_all_0:
 		N_all.append(float(x))
-	dens_mat_2 = two_qubit_tomography(N_all, SIngles)
+	dens_mat_2 = two_qubit_tomography(N_all, Singles)
 
 	fig = plt.figure(figsize=(8, 3))
 	ax1 = fig.add_subplot(121, projection='3d')
