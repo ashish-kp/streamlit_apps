@@ -272,8 +272,8 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 	ax2.set_zlim(-1, 1)
 	if st.button("Calculate"):
 		st.write(np.round(dens_mat_2, 3))
-# 		conc = f"Concurrence = {concurrence(dens_mat_2)[0]}"
-# 		st.write(conc)
+		conc = f"Concurrence = {concurrence(dens_mat_2)[0]}"
+		st.write(conc)
 		st.pyplot(fig)
 # 		if st.checkbox("Fidelity"):
 		# coll1, coll2, coll3, coll4 = st.columns(4)
