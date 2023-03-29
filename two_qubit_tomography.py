@@ -275,17 +275,17 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 # 		conc = f"Concurrence = {concurrence(dens_mat_2)[0]}"
 # 		st.write(conc)
 		st.pyplot(fig)
-		if st.checkbox("Fidelity"):
-			# coll1, coll2, coll3, coll4 = st.columns(4)
-			# with coll1:
-			fa = st.text_input("HH component", 1)
-			# with coll2:
-			fb = st.text_input("HV component", 0)
-			# with coll3:
-			fc = st.text_input("VH component", 0)
-			# with coll4:
-			fd = st.text_input("VV component", 1)	
-			if fa != '' and fb != '' and fc != '' and fd != '':
-				fid_st = np.array([complex(fa.replace(' ', '')), complex(fb.replace(' ', '')), complex(fc.replace(' ', '')), complex(fd.replace(' ', ''))])
-				fid_den_mat = density_mat_from_state_vec(normalize_state_vec(fid_st))
-				st.write(f"Fidelity with the given state is {fidelity(dens_mat_2, fid_den_mat)}")
+# 		if st.checkbox("Fidelity"):
+		# coll1, coll2, coll3, coll4 = st.columns(4)
+		# with coll1:
+		fa = st.text_input("HH component", 1)
+		# with coll2:
+		fb = st.text_input("HV component", 0)
+		# with coll3:
+		fc = st.text_input("VH component", 0)
+		# with coll4:
+		fd = st.text_input("VV component", 1)	
+		if fa != '' and fb != '' and fc != '' and fd != '':
+			fid_st = np.array([complex(fa.replace(' ', '')), complex(fb.replace(' ', '')), complex(fc.replace(' ', '')), complex(fd.replace(' ', ''))])
+			fid_den_mat = density_mat_from_state_vec(normalize_state_vec(fid_st))
+			st.write(f"Fidelity with the given state is {fidelity(dens_mat_2, fid_den_mat)}")
