@@ -245,7 +245,7 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 	N_all = []
 	for x in N_all_0:
 		N_all.append(float(x))
-	dens_mat_2 = two_qubit_tomography(N_all, Singles)
+	dens_mat_2 = two_qubit_tomography(N_all)
 
 	fig = plt.figure(figsize=(8, 3))
 	ax1 = fig.add_subplot(121, projection='3d')
@@ -270,12 +270,12 @@ if a != '' and b != '' and c != '' and d != '' and e != '' and f != '' and g != 
 	ax2.bar3d(x, y, 0, dx, dy, dz1, shade=True)
 	ax2.set_title('Imaginary values')
 	ax2.set_zlim(-1, 1)
-	if st.button("Calculate"):
+	if st.button("Do it"):
 		st.write(np.round(dens_mat_2, 3))
 		conc = f"Concurrence = {concurrence(dens_mat_2)[0]}"
 		st.write(conc)
 		st.pyplot(fig)
-# 		if st.checkbox("Fidelity"):
+	if st.checkbox("Fidelity"):
 		# coll1, coll2, coll3, coll4 = st.columns(4)
 		# with coll1:
 		fa = st.text_input("HH component", 1)
