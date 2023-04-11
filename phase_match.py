@@ -35,7 +35,7 @@ def type_1(theta):
     return np.abs(ref_angle(nop, nEp, theta) - (nos * np.cos(theta_s)))
 
 def type_2(theta):
-    return np.abs(2 * ref_angle(nop, nEp, theta) - (np.cos(3 * np.pi / 180) * (ref_angle(nos, nEs, theta) + nos)))
+    return np.abs(2 * ref_angle(nop, nEp, theta) - (np.cos(theta_s) * (ref_angle(nos, nEs, theta) + nos)))
 
 if lp != '' and ls != '' and theta_s != '' and st.button("Calculate"):
 	st.write(f"Type-I = {(minimize(type_1, 1).x * 180 / np.pi)[0]}")
