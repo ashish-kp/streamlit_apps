@@ -20,11 +20,11 @@ theta_s = 3 * np.pi / 180
 st.title("Phase Matching Angle for BBO Crystal")
 st.text("Non-collinear Degenerate Spontaneous Parametric Down Conversion")
 
-lp = st.text_input("Enter wavelength of pump", 0.405)
-ls = st.text_input("Enter wavelength of signal or idler", 0.810)
-theta_s = st.number_input("Enter angle of seperation", 3)
-theta_s = theta_s * np.pi / 180
-lp, ls = float(lp), float(ls)
+lp = st.text_input("Enter wavelength of pump in nm", 405)
+ls = st.text_input("Enter wavelength of signal or idler in nm", 810)
+theta_s = st.text_input("Enter angle of seperation", 3)
+theta_s = float(theta_s) * np.pi / 180
+lp, ls = float(lp) / 1000, float(ls) / 1000
 
 nop = sellmeier_bbo(lp, 'o')
 nEp = sellmeier_bbo(lp, 'e')
