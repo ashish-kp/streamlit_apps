@@ -93,7 +93,7 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	W = [1, 1, 1, 1]
 	sol = minimize(obj_fun, W, constraints = consts, method = 'SLSQP').x
 	wig_dis = [[sol[2], sol[3]], [sol[0], sol[1]]]
-	st.write(f"{wig_dis}")
+	st.write(f"{np.round(wig_dis, 4)}")
 	fig = plt.figure()
 	ax = fig.add_subplot(122, projection='3d')
 	ax1= fig.add_subplot(121, projection='3d')
