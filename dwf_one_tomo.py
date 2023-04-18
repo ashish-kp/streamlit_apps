@@ -173,4 +173,5 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	st.write("The Wigner Distribution after optimization:")
 	st.write(np.round(wig_dis, 5))
 	st.pyplot(fig)
+	st.write(random_counts([]))
 # np.round(wig_to_dens(wig_dis, False), 3), np.linalg.eigvals(wig_to_dens(wig_dis, False))
