@@ -102,7 +102,7 @@ def num_2_wig(nh, nv, nd, nl):
     pa = (nt - nd) / nt
     pr = (nt - nl) / nt
     return np.array([[ph + pa + pr - 1, pv + pa + pl - 1], [ph + pd + pl - 1, pv + pd + pr - 1]]) / 2
-a, b, c, d = random_counts([])
+a, b, c, d = [1000, 0, 500, t500]
 nh, nv, nd, nl = st.text_input("H", str(a)), st.text_input("V", str(b)), st.text_input("D", str(c)), st.text_input("L", str(d))
 
 if nh != '' and nv != '' and nd != '' and nl != '':
