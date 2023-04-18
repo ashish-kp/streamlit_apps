@@ -1,7 +1,9 @@
 import streamlit as st
+from qiskit import *
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
+sim = Aer.get_backend('aer_simulator')
 
 st.title("One Qubit Discrete Wigner Distribution Tomography")
 
@@ -37,6 +39,48 @@ Solving this, we get:
 $$\lambda=\dfrac{(a + d) \pm \sqrt{(a-d)^2 + 4|b|^2}}{2}$$
 $$ ad > |b|^2 \rightarrow s_0^2 - s_z^2 > s_x^2 + s_y^2 \rightarrow s_0^2 \geq s_x^2 + s_y^2 + s_z^2. $$""")
 
+def complex_conjugate(dens_mat):
+    return np.conj(dens_mat).T
+
+def nxn_valid_quantum(sqr_mat):
+    if type(sqr_mat) != np.array:
+        sqr_mat = np.array(sqr_mat)
+    flag = True
+    if np.sum(sqr_mat == complex_conjugate(sqr_mat)) != (sqr_mat.shape[0] * sqr_mat.shape[1]): 
+        raise ValueError("The given matrix is not Hermitian")
+    for x in np.linalg.eigvals(sqr_mat):
+        if x < (-1 * 10**-4): flag = False; raise ValueError("Negative eigen values")
+    if np.trace(sqr_mat) < 0.999 or np.trace(sqr_mat) > 1.0001: flag = False; raise ValueError("Trace is not equal to 1")
+    if np.trace(np.dot(sqr_mat, sqr_mat)) > 1.0001: flag = False; raise ValueError("Trace of rho squared is greater than 1")
+    return flag
+
+def random_counts(phi_ = []):
+    "Creates a random pure state and measures the counts in the H, V, D and L basis"
+    alpha = np.random.random()
+    if np.sum(phi_) == 0:
+        phi = sq.norm_state_vec([alpha, np.sqrt(1 - alpha**2)])
+    else:
+        phi = phi_
+    meas_data = []
+    for i in range(3):
+        dwf_tom = QuantumCircuit(1)
+        dwf_tom.initialize(phi, 0)
+        if i == 1:
+            dwf_tom.h(0)
+        if i == 2:
+            dwf_tom.p(-np.pi / 2, 0)
+            dwf_tom.h(0)
+            dwf_tom.p(np.pi / 2, 0)
+        dwf_tom.measure_all()
+        meas = sim.run(assemble(dwf_tom)).result().get_counts()
+        if '0' not in meas.keys():
+            meas['0'] = 0
+        elif '1' not in meas.keys():
+            meas['1'] = 0
+        meas_data.append(meas)
+    return meas_data[0]['0'], meas_data[0]['1'], meas_data[1]['0'], meas_data[2]['0']
+
+
 def wig_to_dens(arr, check = False):
     w00, w01, w10, w11 = arr[1][0], arr[1][1], arr[0][0], arr[0][1]
     alpha = -w00 + w10
@@ -58,7 +102,7 @@ def num_2_wig(nh, nv, nd, nl):
     pr = (nt - nl) / nt
     return np.array([[ph + pa + pr - 1, pv + pa + pl - 1], [ph + pd + pl - 1, pv + pd + pr - 1]]) / 2
 
-nh, nv, nd, nl = st.text_input("H", "1000"), st.text_input("V", "0"), st.text_input("D", "500"), st.text_input("L", "500")
+nh, nv, nd, nl = st.text_input("H"), st.text_input("V"), st.text_input("D"), st.text_input("L")
 
 if nh != '' and nv != '' and nd != '' and nl != '':
 	nh, nv, nd, nl = float(nh), float(nv), float(nd), float(nl)
@@ -93,32 +137,5 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	W = [1, 1, 1, 1]
 	sol = minimize(obj_fun, W, constraints = consts, method = 'SLSQP').x
 	wig_dis = [[sol[2], sol[3]], [sol[0], sol[1]]]
-	st.write(np.round(wig_dis, 4))
-	fig = plt.figure()
-	ax = fig.add_subplot(122, projection='3d')
-	ax1= fig.add_subplot(121, projection='3d')
-	x_data = np.array([0,1])
-	y_data = np.array([0,1])
-	z_data =wig_dis_old
-	z_data2=np.array(wig_dis)
-	dx = dy = 0.5  # width of each bar in x and y direction
-	dz = z_data.ravel()  # height of each bar
-	dz1=z_data2.ravel()
-	x, y = np.meshgrid(x_data, y_data)
-	x, y, z = x.ravel(), y.ravel(), 0
-
-	# Plot 3D bars
-	ax.bar3d(x, y, z, dx, dy, dz)
-	ax1.bar3d(x, y, z, dx, dy, dz1)
-	ax.set_xlabel('Z Basis')
-	ax.set_ylabel('X Basis')
-	ax.set_zlabel('DWF')
-	ax.set_zlim(0,1)
-
-
-	ax.set_xlabel('Z Basis')
-	ax.set_ylabel('X Basis')
-	ax.set_zlabel('DWF')
-	ax1.set_zlim(0,1)
-	st.pyplot(fig)
+	st.write(f"{wig_dis}")
 # np.round(wig_to_dens(wig_dis, False), 3), np.linalg.eigvals(wig_to_dens(wig_dis, False))
