@@ -156,6 +156,7 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	# Plot 3D bars
 	ax.bar3d(x, y, z, dx, dy, dz)
 	ax1.bar3d(x, y, z, dx, dy, dz1)
+	ax.set_title("Old")
 	ax.set_xlabel('Z Basis')
 	ax.set_ylabel('X Basis')
 	ax.set_zlabel('DWF')
