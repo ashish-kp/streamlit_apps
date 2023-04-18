@@ -137,10 +137,7 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	W = [1, 1, 1, 1]
 	sol = minimize(obj_fun, W, constraints = consts, method = 'SLSQP').x
 	wig_dis = [[sol[2], sol[3]], [sol[0], sol[1]]]
-	st.write("The experimental data generated the following Wigner Distribution :")
-	st.write(np.round(num_2_wig(nh, nv, nd, nl), 3))
-	st.write("The Wigner Distribution after optimization:")
-	st.write(np.round(wig_dis, 5))
+
 	
 	
 	fig = plt.figure()
@@ -169,5 +166,9 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	ax1.set_ylabel('X Basis')
 	ax1.set_zlabel('DWF')
 	# ax1.set_zlim(0,1)
+	st.write("The experimental data generated the following Wigner Distribution :")
+	st.write(np.round(num_2_wig(nh, nv, nd, nl), 3))
+	st.write("The Wigner Distribution after optimization:")
+	st.write(np.round(wig_dis, 5))
 	st.pyplot(fig)
 # np.round(wig_to_dens(wig_dis, False), 3), np.linalg.eigvals(wig_to_dens(wig_dis, False))
