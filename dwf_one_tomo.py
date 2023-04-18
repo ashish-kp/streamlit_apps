@@ -146,7 +146,7 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	ax1= fig.add_subplot(121, projection='3d')
 	x_data = np.array([0,1])
 	y_data = np.array([0,1])
-	z_data =wig_dis_old
+	z_data = wig_2_dis(nh, nv, nd, nl)
 	z_data2=np.array(wig_dis)
 	dx = dy = 0.5  # width of each bar in x and y direction
 	dz = z_data.ravel()  # height of each bar
@@ -160,12 +160,12 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	ax.set_xlabel('Z Basis')
 	ax.set_ylabel('X Basis')
 	ax.set_zlabel('DWF')
-	ax.set_zlim(0,1)
+# 	ax.set_zlim(0,1)
 
 
-	ax.set_xlabel('Z Basis')
-	ax.set_ylabel('X Basis')
-	ax.set_zlabel('DWF')
+	ax1.set_xlabel('Z Basis')
+	ax1.set_ylabel('X Basis')
+	ax1.set_zlabel('DWF')
 	# ax1.set_zlim(0,1)
 	st.pyplot(fig)
 # np.round(wig_to_dens(wig_dis, False), 3), np.linalg.eigvals(wig_to_dens(wig_dis, False))
