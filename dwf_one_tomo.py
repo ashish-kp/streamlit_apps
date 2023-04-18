@@ -3,6 +3,7 @@ from qiskit import *
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
+import sqtdiat.qops as sq
 sim = Aer.get_backend('aer_simulator')
 
 st.title("One Qubit Discrete Wigner Distribution Tomography")
