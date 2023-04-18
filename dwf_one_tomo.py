@@ -101,8 +101,8 @@ def num_2_wig(nh, nv, nd, nl):
     pa = (nt - nd) / nt
     pr = (nt - nl) / nt
     return np.array([[ph + pa + pr - 1, pv + pa + pl - 1], [ph + pd + pl - 1, pv + pd + pr - 1]]) / 2
-
-nh, nv, nd, nl = st.text_input("H", "1000"), st.text_input("V", "0"), st.text_input("D", "500"), st.text_input("L", "500")
+a, b, c, d = random_counts([])
+nh, nv, nd, nl = st.text_input("H", str(a)), st.text_input("V", str(b)), st.text_input("D", str(c)), st.text_input("L", str(d))
 
 if nh != '' and nv != '' and nd != '' and nl != '':
 	nh, nv, nd, nl = float(nh), float(nv), float(nd), float(nl)
@@ -154,8 +154,8 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	x, y, z = x.ravel(), y.ravel(), 0
 
 	# Plot 3D bars
-	ax.bar3d(x, y, z, dx, dy, dz)
-	ax1.bar3d(x, y, z, dx, dy, dz1)
+	ax.bar3d(x, y, z, dx, dy, dz1)
+	ax1.bar3d(x, y, z, dx, dy, dz)
 	ax.set_title("Old")
 	ax.set_xlabel('Z Basis')
 	ax.set_ylabel('X Basis')
