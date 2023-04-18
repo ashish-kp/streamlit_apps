@@ -141,13 +141,15 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	st.write(np.round(num_2_wig(nh, nv, nd, nl), 3))
 	st.write("The Wigner Distribution after optimization:")
 	st.write(np.round(wig_dis, 5))
+	
+	
 	fig = plt.figure()
 	ax = fig.add_subplot(122, projection='3d')
 	ax1= fig.add_subplot(121, projection='3d')
 	x_data = np.array([0,1])
 	y_data = np.array([0,1])
-	z_data = wig_2_dis(nh, nv, nd, nl)
-	z_data2=np.array(wig_dis)
+	z_data = num_2_wig(nh, nv, nd, nl)
+	z_data2 = np.array(wig_dis)
 	dx = dy = 0.5  # width of each bar in x and y direction
 	dz = z_data.ravel()  # height of each bar
 	dz1=z_data2.ravel()
