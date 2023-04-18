@@ -141,4 +141,31 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	st.write(np.round(num_2_wig(nh, nv, nd, nl), 3))
 	st.write("The Wigner Distribution after optimization:")
 	st.write(np.round(wig_dis, 5))
+	fig = plt.figure()
+	ax = fig.add_subplot(122, projection='3d')
+	ax1= fig.add_subplot(121, projection='3d')
+	x_data = np.array([0,1])
+	y_data = np.array([0,1])
+	z_data =wig_dis_old
+	z_data2=np.array(wig_dis)
+	dx = dy = 0.5  # width of each bar in x and y direction
+	dz = z_data.ravel()  # height of each bar
+	dz1=z_data2.ravel()
+	x, y = np.meshgrid(x_data, y_data)
+	x, y, z = x.ravel(), y.ravel(), 0
+
+	# Plot 3D bars
+	ax.bar3d(x, y, z, dx, dy, dz)
+	ax1.bar3d(x, y, z, dx, dy, dz1)
+	ax.set_xlabel('Z Basis')
+	ax.set_ylabel('X Basis')
+	ax.set_zlabel('DWF')
+	ax.set_zlim(0,1)
+
+
+	ax.set_xlabel('Z Basis')
+	ax.set_ylabel('X Basis')
+	ax.set_zlabel('DWF')
+	# ax1.set_zlim(0,1)
+	st.pyplot(fig)
 # np.round(wig_to_dens(wig_dis, False), 3), np.linalg.eigvals(wig_to_dens(wig_dis, False))
