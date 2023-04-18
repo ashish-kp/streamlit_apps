@@ -137,5 +137,7 @@ if nh != '' and nv != '' and nd != '' and nl != '':
 	W = [1, 1, 1, 1]
 	sol = minimize(obj_fun, W, constraints = consts, method = 'SLSQP').x
 	wig_dis = [[sol[2], sol[3]], [sol[0], sol[1]]]
+	st.write("The experimental data generated the following Wigner Distribution :")
+	st.write(np.round(num_2_wig(nh, nv, nd, nl), 3))
 	st.write(np.round(wig_dis, 5))
 # np.round(wig_to_dens(wig_dis, False), 3), np.linalg.eigvals(wig_to_dens(wig_dis, False))
