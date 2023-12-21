@@ -13,5 +13,4 @@ numpy
 sqtdiat==0.0.0.3.17
 scipy
 plotly
-re
 gmpy2
