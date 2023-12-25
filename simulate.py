@@ -24,7 +24,7 @@ ctx = gmpy2.context()
 ctx.precision = 10000
 
 st.title("Simulated Homodyne Data")
-rho_opt = st.radio("Type of state", ("State Vector", "Mixed State", "Coherent State", "Cat State"))
+rho_opt = st.radio("Type of state", ("State Vector", "Mixed State", "Coherent State", "Cat State", "Vacuum Squeezed State"))
 
 show_density = True
 # have to add squeezed state here, readabout the number state representation of squeezed state
@@ -46,6 +46,14 @@ def wig_coherent(alpha, xmin, xmax, pmin, pmax, res = 200, g = np.sqrt(2), retur
         return norm_wig, xvec, pvec
     return norm_wig
     
+def wig_vac_squeezed(r, theta, res = 200, return_axes = False):
+    xv = np.linspace(-10, 10, res)
+    X, P = np.meshgrid(xv, xv)
+    th = np.deg2rad(theta)
+    wig = np.exp(-2 * ((X * np.cos(th) + P * np.sin(th))**2 * np.exp(-2 * (r)) + (-X * np.sin(th) + P * np.cos(th))**2 * np.exp(2 * r)))
+    if return_axes == True:
+        return wig, xv, xv
+    return wig
 
 def fact1(n):
     return float(gmpy2.sqrt(gmpy2.fac(n)))
@@ -65,7 +73,7 @@ def coh2(n, alpha):
     return np.array(coh_arr, dtype = object) * base
 
 def rho_input(inp_, type = "state_vec"):
-    types = ['state_vec', 'mixed_state', 'coherent', 'cat_states']
+    types = ['state_vec', 'mixed_state', 'coherent', 'cat_states', 'vac_squeezed_states']
     if type not in types:
         raise ValueError("Please enter allowed type")
     else:
@@ -195,7 +203,7 @@ elif rho_opt == "Coherent State":
     \text{view the density matrices, but take some time to compute element by element.}""")
     st.latex(r"""\text{For higher } \alpha \text{ values, select the option "Direct Wigner Distribution"}\\
     \text{where, the Wigner Distribution is directly obtained from the function:}""")
-    st.latex(r"W_{\alpha}(x, p)=e^{-(x-2Re(\alpha))^2 - (p - 2Im(\alpha))^2}")
+    st.latex(r"W_{\alpha}(x, p)=\dfrac{1}{\pi}e^{-(x-\sqrt{2}Re(\alpha))^2 - (p - \sqrt{2}Im(\alpha))^2}")
     alpha_rng = st.radio("View density matrix?", ("Yes", "No - Direct Wigner Distribution"))
     if alpha_rng == "Yes":
         inp1_ = st.number_input("Dimension of the state vector N, maximum value is 200", min_value = 10, max_value = 200, step = 1, value = 20)
@@ -237,6 +245,14 @@ elif rho_opt == "Cat State":
                 st.write(f"The number of alphas is {len(alphas)} and prob. amplitudes is {len(c_is)}")
         else:
             st.write(f"Mismatch between the entered dimensions {inp1_} and the given alpha values {len(alphas)} or prob. amplitude values {len(c_is)}")
+
+elif rho_opt == "Vacuum Squeezed State":
+    st.latex(r"""\text{Vacuum Squeezed States are obtained here, using the Wigner Distribution} \\
+    W_{|0(r, \phi)\rangle}(x,p) = \dfrac{2}{\pi} e^{2((xcos\phi + psin\phi)e^{2r} + (-xsin\phi+pcos\phi)e^{-2r})}""")
+    inp0_ = st.slider("Enter r value- squeezing parameter", min_value = 0.0, max_value = 2.0, value = 0.5)
+    inp1_ = st.slider(r"Enter phase angle $\phi$", min_value = 0, max_value = 360, value = 0)
+    r, theta = inp0_, inp1_
+    show_density = False
 
 if type(fin_inp) == np.ndarray and show_density == True:
     fig = plt.figure(figsize=(12, 6))
@@ -317,6 +333,8 @@ if type(fin_inp) == np.ndarray or show_density == False:
                 wig_dist, xv, pv = wig_coherent(alpha, x_min, x_max, p_min, p_max, res, return_vecs = True)
             else:
                 raise ValueError("alpha value should be less than 200.")
+        elif rho_opt == "Vacuum Squeezed State":
+            wig_dist, xv, pv = wig_vac_squeezed(r, theta, res = res, return_axes = True)
     else:
         wig_start_time = time.time()
         wig_dist, xv, pv = wigner_laguerre(fin_inp, x_min, x_max, p_min, p_max, res, return_axes = True)
@@ -362,9 +380,9 @@ if type(fin_inp) == np.ndarray or show_density == False:
     phase_dat = np.repeat(np.linspace(0, 360, phases), pts)
     # st.write(phase_dat.shape[0], sim_data.shape[0])
     fig, ax = plt.subplots()
-    ax.scatter(range(phase_dat.shape[0]), sim_data, s = point_size)
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
+    ax.scatter(phase_dat, sim_data, s = point_size)
+    ax.set_xlabel('Arbitrary time')
+    ax.set_ylabel('Arbitrary BHD Voltage Output')
     ax.set_title('Simulated Homodyne Data')
     st.pyplot(fig)
 
