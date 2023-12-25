@@ -23,7 +23,7 @@ plt.style.use("ggplot")
 ctx = gmpy2.context()
 ctx.precision = 10000
 
-st.title("Simulated Homodyne Data")
+st.title(r"$\text{Simulated Homodyne Data}$")
 rho_opt = st.radio("Type of state", ("State Vector", "Mixed State", "Coherent State", "Cat State", "Vacuum Squeezed State"))
 
 show_density = True
@@ -308,7 +308,7 @@ if type(fin_inp) == np.ndarray and show_density == True:
         st.pyplot(fig)
 
 if type(fin_inp) == np.ndarray or show_density == False:
-    st.write("# Wigner Distribution")
+    st.write(r"### $\text{Wigner Distribution}$")
     st.latex(r"""
     
     \text{Striations or artefacts in the Wigner Distribution might}\\
@@ -356,7 +356,7 @@ if type(fin_inp) == np.ndarray or show_density == False:
         fig.update_traces(colorscale='turbo')
         st.plotly_chart(fig)
     
-    st.write("# Simulated Data - Ideal Case with no losses.")
+    st.write(r"### $\text{Simulated Data - Ideal Case with no losses.}$")
     st.latex(r"""\text{The homodyne data, for the above entered density matrix}\\
     \text{simulated, taking into consideration some experimental impediments.}\\
     \text{assuming responsivity of the detector is ideal.}""")
@@ -376,16 +376,20 @@ if type(fin_inp) == np.ndarray or show_density == False:
         elec_noise_var = 0
     point_size = st.slider("Point size in graph", min_value = 0.01, max_value = 1.0, value = 0.1)
     # st.write(point_size)
-    sim_data = sim_homodyne_data(wig_dist, xv, ADC_bits = ADC_bits, theta_steps = phases, need_elec_noise = need_elec_noise, pts = pts, elec_var = elec_noise_var)   
-    phase_dat = np.repeat(np.linspace(0, 360, phases), pts)
-    # st.write(phase_dat.shape[0], sim_data.shape[0])
-    fig, ax = plt.subplots()
-    ax.scatter(phase_dat, sim_data, s = point_size)
-    ax.set_xlabel('Arbitrary time')
-    ax.set_ylabel('Arbitrary BHD Voltage Output')
-    ax.set_title('Simulated Homodyne Data')
-    st.pyplot(fig)
+    if st.button("Simulate"):
+        sim_data = sim_homodyne_data(wig_dist, xv, ADC_bits = ADC_bits, theta_steps = phases, need_elec_noise = need_elec_noise, pts = pts, elec_var = elec_noise_var)   
+        phase_dat = np.repeat(np.linspace(0, 360, phases), pts)
+        # st.write(phase_dat.shape[0], sim_data.shape[0])
+        fig, ax = plt.subplots()
+        ax.scatter(phase_dat, sim_data, s = point_size)
+        ax.set_xlabel('Arbitrary time')
+        ax.set_ylabel('Arbitrary BHD Voltage Output')
+        ax.set_title('Simulated Homodyne Data')
+        st.pyplot(fig)
 
-    df = pd.DataFrame({'Phase': phase_dat, 'Simulated Homodyne Data': sim_data})
-    st.markdown(download_csv(df), unsafe_allow_html=True)
+        st.latex(r"""\text{Below link can be used to download the above}\\
+        \text{simulated data as a csv file.}""")
+
+        df = pd.DataFrame({'Phase': phase_dat, 'Simulated Homodyne Data': sim_data})
+        st.markdown(download_csv(df), unsafe_allow_html=True)
     
