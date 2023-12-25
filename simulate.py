@@ -158,8 +158,36 @@ if rho_opt == "State Vector":
         inp_ = str_to_arr(inp_)
         fin_inp = rho_input(inp_, type = "state_vec")
 
-        # Note: Placing the code for the plot outside this if condition is causing problems.
-
+elif rho_opt == "Mixed State":
+    inp0_ = st.number_input("Enter the number of states you wish to mix. Minimum : 2, Maximum : 10", min_value = 2, max_value = 10, value = 2)
+    st.latex(r"""\text{Enter the statevectors. Please make sure every state vector}\\
+    \text{has the same dimension.}""")
+    state_1 = st.text_input("Enter the unnormalized statevector here. Eg: 1, 0, 1j", value = "1, 0")
+    st_1 = str_to_arr(state_1)
+    # st.write(st_1)
+    state_vec = np.zeros((inp0_, st_1.shape[0]))
+    state_vec[0] = st_1
+    for i in range(inp0_ - 1):
+        state_n = st.text_input("Enter the statevector with same dimension as above.", value = "0, 1", key = f"{i}")
+        st_n = str_to_arr(state_n)
+        state_vec[i + 1] = st_n
+        if st_1.shape[0] != st_n.shape[0]:
+            raise ValueError("Please make sure all the statevectors have the same dimensions.")
+    inp2_ = st.text_input(f"Enter the {inp0_} classical probabilities (unnormalized) for these states.")
+    if inp2_ != "":
+        class_probs = np.real(str_to_arr(inp2_))
+        if len(class_probs) != inp0_:
+            st.write(class_probs, inp0_)
+            st.text("Mismatch in no. of statevectors and no. of given classical probabilities.")
+        else:
+            class_probs /= np.sum(class_probs)
+            fin_inp = np.zeros((st_1.shape[0], st_1.shape[0]))
+            for (p, state) in zip(class_probs, state_vec):
+                fin_inp += p * np.outer(state, np.conj(state))
+            # st.write(fin_inp)
+            
+        
+        
 
 elif rho_opt == "Coherent State":
     st.latex(r'|\alpha \rangle = e^{-|\alpha|^2} \sum_{n=0}^{\infty} \dfrac{\alpha^n}{\sqrt{n!}} |n\rangle')
@@ -332,7 +360,7 @@ if type(fin_inp) == np.ndarray or show_density == False:
     # st.write(point_size)
     sim_data = sim_homodyne_data(wig_dist, xv, ADC_bits = ADC_bits, theta_steps = phases, need_elec_noise = need_elec_noise, pts = pts, elec_var = elec_noise_var)   
     phase_dat = np.repeat(np.linspace(0, 360, phases), pts)
-    st.write(phase_dat.shape[0], sim_data.shape[0])
+    # st.write(phase_dat.shape[0], sim_data.shape[0])
     fig, ax = plt.subplots()
     ax.scatter(range(phase_dat.shape[0]), sim_data, s = point_size)
     ax.set_xlabel('X-axis')
