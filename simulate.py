@@ -11,6 +11,7 @@ from matplotlib.cm import ScalarMappable
 import plotly.graph_objs as go
 import plotly.express as px
 from scipy.interpolate import interp1d
+from scipy.signal import convolve
 from skimage import transform
 import time
 import pandas as pd
@@ -54,6 +55,13 @@ def wig_vac_squeezed(r, theta, res = 200, return_axes = False):
     if return_axes == True:
         return wig, xv, xv
     return wig
+
+def wig_loss(wig_dis, eta, xvec, pvec):
+    X, P = np.meshgrid(xvec, pvec)
+    s = eta / (1 - eta)
+    s_arr = np.exp(-s * (X**2 + P**2))
+    s_arr /= np.sum(s_arr)
+    return convolve(wig_dis, s_arr, mode = 'same')
 
 def fact1(n):
     return float(gmpy2.sqrt(gmpy2.fac(n)))
@@ -154,7 +162,7 @@ def sim_homodyne_data(wg, xv, theta_steps = 180, ADC_bits = 8, pts = 100, need_e
 def download_csv(df):
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="array_data.csv">Download CSV File</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="sim_data.csv">Simulated data in csv format</a>'
     return href
 
 fin_inp = 0
@@ -342,13 +350,13 @@ if type(fin_inp) == np.ndarray or show_density == False:
         st.text(f"Time taken to calculate the wigner distribution {np.round(wig_end_time - wig_start_time, 5)} seconds")
     # 2D plot 
     
-    wig_plot_opt = st.radio("Visualization", ["2D Plot", "3D Plot"])
-    if wig_plot_opt == "2D Plot":
+    wig_plot_opt_2 = st.radio("Visualize after loss", ["2D Plot", "3D Plot"])
+    if wig_plot_opt_2 == "2D Plot":
         fig = px.imshow(wig_dist, x = xv, y = pv)
         st.plotly_chart(fig)
     
     # 3D plot
-    elif wig_plot_opt == "3D Plot":
+    elif wig_plot_opt_2 == "3D Plot":
         fig = go.Figure(data=[go.Surface(z=wig_dist, x=xv, y=pv)])
         fig.update_layout(title='Wigner Distribution', autosize=False, width=800, height=600, scene = dict(
             xaxis=dict(title='P'),
@@ -356,15 +364,35 @@ if type(fin_inp) == np.ndarray or show_density == False:
         fig.update_traces(colorscale='turbo')
         st.plotly_chart(fig)
     
-    st.write(r"### $\text{Simulated Data - Ideal Case with no losses.}$")
+    st.write(r"### $\text{Simulated Data - Fixed Arbitrary Gain}$") 
+    st.write(r"#### $\text{Losses due to Responsivity of Detector and Electronic Noise}$")
     st.latex(r"""\text{The homodyne data, for the above entered density matrix}\\
     \text{simulated, taking into consideration some experimental impediments.}\\
-    \text{assuming responsivity of the detector is ideal.}""")
+    \text{assuming responsivity of the detector is non-ideal.}""")
     phases = st.number_input("No. of quadratures to be measured in one whole period.", min_value = 10, max_value = 360, value = 180)
     pts = st.number_input("No. of measurements per quadrature.", min_value = 10, max_value = 1000, value = 100)
     ADC_bits = st.number_input("ADC used for sampling", min_value = 4, max_value = 16, value = 8)
     st.latex(r"\text{Optional - Select the spacing between the discrete values obtained.}")
     data_res = st.number_input("Varies from 3 to 15", min_value = 3, max_value = 15, value = 8)
+
+    detect_eff = st.radio("Add losses due to non-ideal quantum efficiency?", ("Yes", "No"))
+    if detect_eff == "Yes":
+        q_eff = st.slider("Quantum efficiency of detector", min_value = 0.4, max_value = 1.0, value = 0.85)
+        wig_dist = wig_loss(wig_dist, eta = q_eff, xvec = xv, pvec = pv)
+        st.write(r"$\text{Wigner Distribution after detector loss.}$")
+        wig_plot_opt = st.radio("Visualization", ["2D Plot", "3D Plot"])
+        if wig_plot_opt == "2D Plot":
+            fig = px.imshow(wig_dist, x = xv, y = pv)
+            st.plotly_chart(fig)
+        
+        # 3D plot
+        elif wig_plot_opt == "3D Plot":
+            fig = go.Figure(data=[go.Surface(z=wig_dist, x=xv, y=pv)])
+            fig.update_layout(title='Wigner Distribution', autosize=False, width=800, height=600, scene = dict(
+                xaxis=dict(title='P'),
+                yaxis=dict(title='X')))
+            fig.update_traces(colorscale='turbo')
+            st.plotly_chart(fig)
     
     elec_noise_add = st.radio("Add electronic noise?", ("Yes", "No"))
     if elec_noise_add == "Yes":
