@@ -377,7 +377,7 @@ if type(fin_inp) == np.ndarray or show_density == False:
 
     detect_eff = st.radio("Add losses due to non-ideal quantum efficiency?", ("Yes", "No"))
     if detect_eff == "Yes":
-        q_eff = st.slider("Quantum efficiency of detector", min_value = 0.4, max_value = 1.0, value = 0.85)
+        q_eff = st.slider("Quantum efficiency of detector", min_value = 0.4, max_value = 0.99, value = 0.85)
         wig_dist = wig_loss(wig_dist, eta = q_eff, xvec = xv, pvec = pv)
         st.write(r"$\text{Wigner Distribution after detector loss.}$")
         wig_plot_opt = st.radio("Visualization", ["2D Plot", "3D Plot"])
