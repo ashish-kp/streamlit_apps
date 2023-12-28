@@ -16,7 +16,6 @@ from skimage import transform
 import time
 import pandas as pd
 import base64
-import cv2
 
 st.set_page_config(page_title="My App", initial_sidebar_state="expanded")
 
