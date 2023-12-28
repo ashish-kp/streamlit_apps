@@ -16,6 +16,7 @@ from skimage import transform
 import time
 import pandas as pd
 import base64
+import cv2
 
 st.set_page_config(page_title="My App", initial_sidebar_state="expanded")
 
@@ -24,17 +25,43 @@ plt.style.use("ggplot")
 ctx = gmpy2.context()
 ctx.precision = 10000
 
-st.title(r"$\text{Simulated Homodyne Data}$")
+st.title(r"""$\text{Balanced Homodyne Detection}\\ \text{of Quantum States}$""")
 rho_opt = st.radio("Type of state", ("State Vector", "Mixed State", "Coherent State", "Cat State", "Vacuum Squeezed State"))
 
 show_density = True
 # have to add squeezed state here, readabout the number state representation of squeezed state
 
 def str_to_arr(inp_):
+    """
+    Converts a string input of comma-separated complex numbers into a numpy array.
+
+    Args:
+    inp_ (str): Input string containing comma-separated complex numbers.
+
+    Returns:
+    numpy.ndarray: Array of complex numbers extracted from the input string.
+    """
     cleaned_string = re.sub(r'[^0-9j,\+\-/*\.]', '', inp_)
     return np.array([complex(x) for x in cleaned_string.split(',')])
 
 def wig_coherent(alpha, xmin, xmax, pmin, pmax, res = 200, g = np.sqrt(2), return_vecs = False):
+    """
+    Generates a normalized Wigner distribution for a coherent state in phase space.
+
+    Args:
+    alpha (complex): Complex number defining the coherent state.
+    xmin (float): Minimum value for the x-axis.
+    xmax (float): Maximum value for the x-axis.
+    pmin (float): Minimum value for the momentum (p) axis.
+    pmax (float): Maximum value for the momentum (p) axis.
+    res (int, optional): Resolution for the grid. Defaults to 200.
+    g (float, optional): Parameter for state representation. Defaults to sqrt(2).
+    return_vecs (bool, optional): Whether to return coordinate vectors. Defaults to False.
+
+    Returns:
+    numpy.ndarray or tuple: Normalized Wigner distribution for the coherent state or 
+                            tuple with distribution and coordinate vectors (if return_vecs=True).
+    """
     if xmax - xmin < 3 * np.abs(alpha) or pmax - pmin < 3 * np.abs(alpha):
         st.write(f"Unchangeable dimensions {2 * np.abs(alpha)}")
         xmin, xmax, pmin, pmax = -2 * np.abs(alpha), 2 * np.abs(alpha), -2 * np.abs(alpha), 2 * np.abs(alpha)
@@ -48,15 +75,40 @@ def wig_coherent(alpha, xmin, xmax, pmin, pmax, res = 200, g = np.sqrt(2), retur
     return norm_wig
     
 def wig_vac_squeezed(r, theta, res = 200, return_axes = False):
+    """
+    Generates the Wigner distribution for a vacuum squeezed state in phase space.
+
+    Args:
+    r (float): Squeezing parameter.
+    theta (float): Phase angle in degrees.
+    res (int, optional): Resolution for the grid. Defaults to 200.
+    return_axes (bool, optional): Whether to return coordinate axes. Defaults to False.
+
+    Returns:
+    numpy.ndarray or tuple: Wigner distribution for the vacuum squeezed state or 
+                            tuple with distribution and coordinate axes (if return_axes=True).
+    """
     xv = np.linspace(-10, 10, res)
     X, P = np.meshgrid(xv, xv)
     th = np.deg2rad(theta)
-    wig = np.exp(-2 * ((X * np.cos(th) + P * np.sin(th))**2 * np.exp(-2 * (r)) + (-X * np.sin(th) + P * np.cos(th))**2 * np.exp(2 * r)))
+    wig = np.exp(-2 * ((X * np.cos(th) + P * np.sin(th))**2 * np.exp(-2 * (r)) + (-X * np.sin(th) + P * np.cos(th))**2 * np.exp(2 * r))) * 2 / np.pi
     if return_axes == True:
         return wig, xv, xv
     return wig
 
 def wig_loss(wig_dis, eta, xvec, pvec):
+    """
+    Applies loss to a given Wigner distribution.
+
+    Args:
+    wig_dis (numpy.ndarray): Input Wigner distribution.
+    eta (float): Loss parameter.
+    xvec (numpy.ndarray): x-axis values.
+    pvec (numpy.ndarray): p-axis values.
+
+    Returns:
+    numpy.ndarray: Wigner distribution after applying loss.
+    """
     X, P = np.meshgrid(xvec, pvec)
     s = eta / (1 - eta)
     s_arr = np.exp(-s * (X**2 + P**2))
@@ -137,6 +189,22 @@ def wigner_laguerre(rho, x_min = -10, x_max = 10, p_min = -10, p_max = 10, res =
         raise ValueError("Dim. mismatch between rows and columns")
 
 def sim_homodyne_data(wg, xv, theta_steps = 180, ADC_bits = 8, pts = 100, need_elec_noise = True, elec_var = 0.3, data_res = 10):
+    """
+    Simulates homodyne data with optional electronic noise and detector losses.
+
+    Args:
+    wg (numpy.ndarray): Wigner distribution.
+    xv (numpy.ndarray): x-axis values.
+    theta_steps (int): Number of quadratures to be measured in one whole period.
+    ADC_bits (int): ADC used for sampling.
+    pts (int): Number of measurements per quadrature.
+    need_elec_noise (bool): Flag to include electronic noise.
+    elec_var (float): Relative Variance of Electronic Noise w.r.t Vacuum Noise.
+    data_res (int): Spacing between the discrete values obtained.
+
+    Returns:
+    numpy.ndarray: Simulated homodyne data.
+    """
     # ADC_bits = 8
     thetas = np.linspace(0, 359, theta_steps)
     # pts = 100
@@ -160,13 +228,51 @@ def sim_homodyne_data(wg, xv, theta_steps = 180, ADC_bits = 8, pts = 100, need_e
     return all_data
 
 def download_csv(df):
+    """
+    Downloads simulated data as a CSV file.
+
+    Args:
+    df (pandas.DataFrame): Dataframe containing the simulated data.
+
+    Returns:
+    str: HTML formatted link to download the CSV file.
+    """
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="sim_data.csv">Simulated data in csv format</a>'
     return href
 
+def perform_interpolation(arr1, arr2, m=100, x_min = -5, x_max = 5, padding=1.0, kind='cubic'):
+    # Find non-zero elements and their indices
+    non_zero_indices = np.nonzero(arr1)
+    filtered_arr1 = arr1[non_zero_indices]
+    filtered_arr2 = arr2[non_zero_indices]
+
+    # Create x_new array for interpolation
+    x_new = np.linspace(padding * x_min, padding * x_max, m)
+    
+    # Perform interpolation based on the specified kind (default: cubic)
+    interp_func = interp1d(filtered_arr2, filtered_arr1, kind=kind, bounds_error = False, fill_value = 0)
+    
+    # Generate interpolated data for the x_new array
+    interpolated_data = interp_func(x_new)
+    
+    return x_new, interpolated_data
+
+def meas_data_2_hist(sim_data, theta, data_points, dat_min, dat_max, bins, m = 360):
+    # pts = 360
+    # padding = 1.2
+    # dat_min, dat_max = np.min(sim_data), np.max(sim_data)
+    full = np.zeros((m, theta))
+    for i in range(theta):
+        a, b = np.histogram(sim_data[i * data_points: (i + 1) * data_points], bins = bins)
+        _, c = perform_interpolation(a, b, m = m, x_min = dat_min, x_max = dat_max)
+        full[:, i] = np.abs(c)[::-1]
+    return full
+
 fin_inp = 0
 no_inp = False
+sim_data = np.array([0])
 
 if rho_opt == "State Vector":
     inp_ = st.text_input("Unnormalized probability amplitudes. Eg: 1, 0, 1j, -2")
@@ -223,7 +329,7 @@ elif rho_opt == "Coherent State":
                 raise ValueError("Alpha Value should be less than sqrt(N / 2)")
             fin_inp = rho_input(inp_, type = "coherent")
     elif alpha_rng == "No - Direct Wigner Distribution":
-        inp_ = st.text_input(r"$\alpha$ value $\in \mathbb{C}$, should be less than 200")
+        inp_ = st.text_input(r"$\alpha$ value $\in \mathbb{C}$, should be less than 100")
         if inp_ != "":
             alpha = str_to_arr(inp_)[0]
             show_density = False
@@ -337,10 +443,10 @@ if type(fin_inp) == np.ndarray or show_density == False:
         # p_res = st.number_input("Resolution in p-axis, maximum is 400", min_value = 100, max_value = 400, value = 200)
     if show_density == False:
         if rho_opt == "Coherent State" and no_inp:
-            if alpha < 200:
+            if alpha < 100:
                 wig_dist, xv, pv = wig_coherent(alpha, x_min, x_max, p_min, p_max, res, return_vecs = True)
             else:
-                raise ValueError("alpha value should be less than 200.")
+                raise ValueError("alpha value should be less than 100.")
         elif rho_opt == "Vacuum Squeezed State":
             wig_dist, xv, pv = wig_vac_squeezed(r, theta, res = res, return_axes = True)
     else:
@@ -369,8 +475,8 @@ if type(fin_inp) == np.ndarray or show_density == False:
     st.latex(r"""\text{The homodyne data, for the above entered density matrix}\\
     \text{simulated, taking into consideration some experimental impediments.}\\
     \text{assuming responsivity of the detector is non-ideal.}""")
-    phases = st.number_input("No. of quadratures to be measured in one whole period.", min_value = 10, max_value = 360, value = 180)
-    pts = st.number_input("No. of measurements per quadrature.", min_value = 10, max_value = 1000, value = 100)
+    phases = st.number_input("No. of quadratures to be measured in one whole period.", min_value = 10, max_value = 360, value = 360)
+    pts = st.number_input("No. of measurements per quadrature.", min_value = 10, max_value = 1000, value = 300)
     ADC_bits = st.number_input("ADC used for sampling", min_value = 4, max_value = 16, value = 8)
     st.latex(r"\text{Optional - Select the spacing between the discrete values obtained.}")
     data_res = st.number_input("Varies from 3 to 15", min_value = 3, max_value = 15, value = 8)
@@ -404,20 +510,44 @@ if type(fin_inp) == np.ndarray or show_density == False:
         elec_noise_var = 0
     point_size = st.slider("Point size in graph", min_value = 0.01, max_value = 1.0, value = 0.1)
     # st.write(point_size)
-    if st.button("Simulate"):
-        sim_data = sim_homodyne_data(wig_dist, xv, ADC_bits = ADC_bits, theta_steps = phases, need_elec_noise = need_elec_noise, pts = pts, elec_var = elec_noise_var)   
-        phase_dat = np.repeat(np.linspace(0, 360, phases), pts)
-        # st.write(phase_dat.shape[0], sim_data.shape[0])
+    # if st.button("Simulate"):
+    sim_data = sim_homodyne_data(wig_dist, xv, ADC_bits = ADC_bits, theta_steps = phases, need_elec_noise = need_elec_noise, pts = pts, elec_var = elec_noise_var)   
+    phase_dat = np.repeat(np.linspace(0, 360, phases), pts)
+    # st.write(phase_dat.shape[0], sim_data.shape[0])
+    fig, ax = plt.subplots()
+    ax.scatter(np.linspace(0, 360, phase_dat.shape[0]), sim_data, s = point_size)
+    ax.set_xlabel('Arbitrary time')
+    ax.set_ylabel('Arbitrary BHD Voltage Output')
+    ax.set_title('Simulated Homodyne Data')
+    st.pyplot(fig)
+
+    st.latex(r"""\text{Below link can be used to download the above}\\
+    \text{simulated data as a csv file.}""")
+
+    df = pd.DataFrame({'Phase': phase_dat, 'Simulated Homodyne Data': sim_data})
+    st.markdown(download_csv(df), unsafe_allow_html=True)
+
+    st.title(r"$\text{Wigner State Reconstruction}$")
+    st.latex(r"""\text{With the quadrature data obtained from BHD}\\
+    \text{limited by our detector losses, electronic noise}\\
+    \text{and the discreteness of the ADC, we shall}
+    \\ \text{attempt to reconstruct the Wigner State}
+    \\ \text{and subsequently, the density matrix.}""")
+
+    if sim_data.shape[0] > 1:
+        # padding = st.slider("Padding ratio) to be added on the ends of the data", min_value = 1.0, max_value = 2.0, value = 1.2)
+        # st.write("Padding 1 is no padding, 1.1 is 10% padding on both sides and so on.")
+        bins = st.slider("No. of bins to be used. Increase to capture smaller changes in data.", min_value = 4, max_value = 50, value = 10)
         fig, ax = plt.subplots()
-        ax.scatter(phase_dat, sim_data, s = point_size)
-        ax.set_xlabel('Arbitrary time')
-        ax.set_ylabel('Arbitrary BHD Voltage Output')
-        ax.set_title('Simulated Homodyne Data')
+        hist_2d = meas_data_2_hist(sim_data, theta = phases, data_points = pts, dat_min = xv[0], dat_max = xv[-1], bins = bins, m = phases)
+        # st.write(hist_2d)
+        ax.imshow(hist_2d)
         st.pyplot(fig)
 
-        st.latex(r"""\text{Below link can be used to download the above}\\
-        \text{simulated data as a csv file.}""")
+        fig, axs = plt.subplots(1, 2, figsize = (12, 5))
+        axs[0].imshow(transform.iradon(hist_2d, theta = np.linspace(0, 360, 360)))
+        axs[0].axis('off')
+        axs[1].imshow(wig_dist)
+        axs[1].axis('off')
 
-        df = pd.DataFrame({'Phase': phase_dat, 'Simulated Homodyne Data': sim_data})
-        st.markdown(download_csv(df), unsafe_allow_html=True)
-    
+        st.pyplot(fig)
