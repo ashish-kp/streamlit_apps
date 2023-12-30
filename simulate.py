@@ -271,8 +271,7 @@ def meas_data_2_hist(sim_data, theta, data_points, dat_min, dat_max, bins, m = 3
     return full
 
 def filter(size):
-    """Copied this filter from skimage.transform.iradon - Source code page
-    Only contains the basic ramp filter."""
+    """Copied this filter from skimage.transform.iradon - Source code page"""
     n = np.concatenate((np.arange(1, size / 2 + 1, 2, dtype=int),
                         np.arange(size / 2 - 1, 0, -2, dtype=int)))
     f = np.zeros(size)
@@ -307,7 +306,7 @@ def irad(hist_2d, xvec = np.linspace(-5, 5, 200), filter_name = "ramp", thetas =
     for theta in range(thetas):
         # final_img += interp1d(x = x_arr, y = filtered_img[:, theta], kind = "cubic", bounds_error = False, fill_value = 0)(p * np.cos(np.deg2rad(theta)) - x * np.sin(np.deg2rad(theta)))
         final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, theta], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
-    return final_img
+    return final_img / (2 * np.pi * thetas)
 
 fin_inp = 0
 no_inp = False
@@ -579,6 +578,20 @@ if type(fin_inp) == np.ndarray or show_density == False:
         # st.write(hist_2d)
         ax.imshow(hist_2d)
         st.pyplot(fig)
+
+        # wig_plot_opt_3 = st.radio("Sinogram", ["2D Plot", "3D Plot"])
+        # if wig_plot_opt_3 == "2D Plot":
+        #     fig = px.imshow(hist_2d, x = np.arange(phases), y = np.linspace(10 * xv[0], 10 * xv[-1], phases))
+        #     st.plotly_chart(fig)
+    
+        # # 3D plot
+        # elif wig_plot_opt_3 == "3D Plot":
+        #     fig = go.Figure(data=[go.Surface(z = hist_2d, x = xv, y = pv)])
+        #     fig.update_layout(title='Sinogram', autosize = False, width = 800, height = 600, scene = dict(
+        #         xaxis=dict(title='Distribution'), 
+        #         yaxis=dict(title='Phases')))
+        #     fig.update_traces(colorscale='turbo')
+        #     st.plotly_chart(fig)
 
         fig, axs = plt.subplots(1, 2, figsize = (12, 5))
         axs[0].imshow(irad(hist_2d))
