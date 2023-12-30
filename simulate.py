@@ -289,7 +289,7 @@ def irad(hist_2d, thetas):
     x_arr = np.arange(hist_2d.shape[0]) - hist_2d.shape[0] // 2
     for col, theta in zip(range(hist_2d.shape[0]), all_thetas):
         final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, col], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
-    return final_img
+    return final_img / np.sum(final_img)
 
 fin_inp = 0
 no_inp = False
