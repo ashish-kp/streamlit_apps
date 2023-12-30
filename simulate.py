@@ -289,23 +289,26 @@ def irad(hist_2d, xvec = np.linspace(-5, 5, 200), filter_name = "ramp", thetas =
     # The parameter thetas is redundant, but I'm using it as of now.
     ## This is not a genralized function, I want it to work specifically for wigner distributions. 
     ## For generalized operations, please consider using skimage.transform.iradon
-    if hist_2d.shape[0] != hist_2d.shape[1]:
-        return ValueError("Please enter a square matrix of size n x n, where n is a multiple of 180.")
-    if filter_name == "ramp":
-        # print("njnj")
-        filt = filter(hist_2d.shape[0])
-    filtered_img = np.real(np.fft.ifft(np.fft.fft(hist_2d, axis = 0) * filt, axis = 0)[:hist_2d.shape[1], :])
-    final_img = np.zeros((hist_2d.shape))
     # # Using mgrid instead of meshgrid as, here, we are only concerned with the 
     # # size of the array, and not the points it represents.
     # # Creating 2d arrays whose indices will be filled with interpolation
     # # as the np.pad function is slower, but would seem like a simpler and 
     # # more intuitive approach.
+    # # # Using functools.partial insteal of np.interp1d (Much faster, need to see why EXACTLY)
+    # # # final_img += interp1d(x = x_arr, y = filtered_img[:, theta], kind = "cubic", bounds_error = False, 
+    # # # fill_value = 0)(p * np.cos(np.deg2rad(theta)) - x * np.sin(np.deg2rad(theta)))
+    
+    all_thetas = np.linspace(0, 360, thetas)
+    if hist_2d.shape[0] != hist_2d.shape[1]:
+        return ValueError("Please enter a square matrix of size n x n, where n is a multiple of 180.")
+    if filter_name == "ramp":
+        filt = filter(hist_2d.shape[0])
+    filtered_img = np.real(np.fft.ifft(np.fft.fft(hist_2d, axis = 0) * filt, axis = 0)[:hist_2d.shape[1], :])
+    final_img = np.zeros((hist_2d.shape))
     x, p = np.mgrid[:hist_2d.shape[0], :hist_2d.shape[0]] - hist_2d.shape[0] // 2
     x_arr = np.arange(hist_2d.shape[0]) - hist_2d.shape[0] // 2
-    for theta in range(thetas):
-        # final_img += interp1d(x = x_arr, y = filtered_img[:, theta], kind = "cubic", bounds_error = False, fill_value = 0)(p * np.cos(np.deg2rad(theta)) - x * np.sin(np.deg2rad(theta)))
-        final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, theta], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
+    for col, theta in zip(range(hist_2d.shape[0]), all_thetas):
+        final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, col], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
     return final_img / (2 * np.pi * thetas)
 
 fin_inp = 0
@@ -594,7 +597,7 @@ if type(fin_inp) == np.ndarray or show_density == False:
         #     st.plotly_chart(fig)
 
         fig, axs = plt.subplots(1, 2, figsize = (12, 5))
-        axs[0].imshow(irad(hist_2d))
+        axs[0].imshow(irad(hist_2d, thetas = phases))
         axs[0].axis('off')
         axs[1].imshow(wig_dist)
         axs[1].axis('off')
