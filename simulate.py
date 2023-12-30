@@ -16,6 +16,7 @@ from skimage import transform
 import time
 import pandas as pd
 import base64
+from functools import partial
 
 st.set_page_config(page_title="My App", initial_sidebar_state="expanded")
 
@@ -269,6 +270,45 @@ def meas_data_2_hist(sim_data, theta, data_points, dat_min, dat_max, bins, m = 3
         full[:, i] = np.abs(c)[::-1]
     return full
 
+def filter(size):
+    """Copied this filter from skimage.transform.iradon - Source code page
+    Only contains the basic ramp filter."""
+    n = np.concatenate((np.arange(1, size / 2 + 1, 2, dtype=int),
+                        np.arange(size / 2 - 1, 0, -2, dtype=int)))
+    f = np.zeros(size)
+    f[0] = 0.25
+    f[1::2] = -1 / (np.pi * n) ** 2
+    f_ = np.fft.ifft(f)
+    return np.real(f_[:, np.newaxis] / np.max(f_))
+
+def irad(hist_2d, xvec = np.linspace(-5, 5, 200), filter_name = "ramp", thetas = 360):
+    """
+    This function is a copied version of the skimage.transform.iradon,
+    where I have removed certain parts of the original, and replaced variable names.
+    please refer to the original function, to learn more about it.
+    """
+    # The parameter thetas is redundant, but I'm using it as of now.
+    ## This is not a genralized function, I want it to work specifically for wigner distributions. 
+    ## For generalized operations, please consider using skimage.transform.iradon
+    if hist_2d.shape[0] != hist_2d.shape[1]:
+        return ValueError("Please enter a square matrix of size n x n, where n is a multiple of 180.")
+    if filter_name == "ramp":
+        # print("njnj")
+        filt = filter(hist_2d.shape[0])
+    filtered_img = np.real(np.fft.ifft(np.fft.fft(hist_2d, axis = 0) * filt, axis = 0)[:hist_2d.shape[1], :])
+    final_img = np.zeros((hist_2d.shape))
+    # # Using mgrid instead of meshgrid as, here, we are only concerned with the 
+    # # size of the array, and not the points it represents.
+    # # Creating 2d arrays whose indices will be filled with interpolation
+    # # as the np.pad function is slower, but would seem like a simpler and 
+    # # more intuitive approach.
+    x, p = np.mgrid[:hist_2d.shape[0], :hist_2d.shape[0]] - hist_2d.shape[0] // 2
+    x_arr = np.arange(hist_2d.shape[0]) - hist_2d.shape[0] // 2
+    for theta in range(thetas):
+        # final_img += interp1d(x = x_arr, y = filtered_img[:, theta], kind = "cubic", bounds_error = False, fill_value = 0)(p * np.cos(np.deg2rad(theta)) - x * np.sin(np.deg2rad(theta)))
+        final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, theta], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
+    return final_img
+
 fin_inp = 0
 no_inp = False
 sim_data = np.array([0])
@@ -306,10 +346,7 @@ elif rho_opt == "Mixed State":
             for (p, state) in zip(class_probs, state_vec):
                 fin_inp += p * np.outer(state, np.conj(state))
             # st.write(fin_inp)
-            
         
-        
-
 elif rho_opt == "Coherent State":
     st.latex(r'|\alpha \rangle = e^{-|\alpha|^2} \sum_{n=0}^{\infty} \dfrac{\alpha^n}{\sqrt{n!}} |n\rangle')
     st.latex(r"""\text{Coherent states with N values less than 200 allow us to }\\
@@ -544,7 +581,7 @@ if type(fin_inp) == np.ndarray or show_density == False:
         st.pyplot(fig)
 
         fig, axs = plt.subplots(1, 2, figsize = (12, 5))
-        axs[0].imshow(transform.iradon(hist_2d, theta = np.linspace(0, 360, 360)))
+        axs[0].imshow(irad(hist_2d))
         axs[0].axis('off')
         axs[1].imshow(wig_dist)
         axs[1].axis('off')
