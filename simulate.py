@@ -289,7 +289,7 @@ def irad(hist_2d, thetas):
     x_arr = np.arange(hist_2d.shape[0]) - hist_2d.shape[0] // 2
     for col, theta in zip(range(hist_2d.shape[0]), all_thetas):
         final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, col], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
-    return final_img / np.sum(final_img)
+    return final_img
 
 fin_inp = 0
 no_inp = False
@@ -563,11 +563,21 @@ if type(fin_inp) == np.ndarray or show_density == False:
         # st.pyplot(fig)
 
         wig_recon = irad(hist_2d, thetas = phases)
-        st.write(wig_recon.shape)
-        fig, axs = plt.subplots(1, 2, figsize = (12, 5))
-        axs[0].imshow(wig_recon)
-        axs[0].axis('off')
-        axs[1].imshow(wig_dist)
-        axs[1].axis('off')
+        # wig_recon = transform.iradon(hist_2d, theta = np.linspace(0, 360, phases))
 
-        st.pyplot(fig)
+        # st.write(wig_recon.shape)
+        wig_plot_opt_2 = st.radio("Reconstructed Wigner Distribution", ["2D Plot", "3D Plot"])
+        if wig_plot_opt_2 == "2D Plot":
+            fig = px.imshow(wig_recon, x = xv, y = pv)
+            st.plotly_chart(fig)
+        
+        # 3D plot
+        elif wig_plot_opt_2 == "3D Plot":
+            fig = go.Figure(data=[go.Surface(z=wig_recon, x=xv, y=pv)])
+            fig.update_layout(title='Reconstructed Wigner Distribution', autosize=False, width=800, height=600, scene = dict(
+                xaxis=dict(title='P'),
+                yaxis=dict(title='X')))
+            fig.update_traces(colorscale='turbo')
+            st.plotly_chart(fig)
+
+        # st.pyplot(fig)
