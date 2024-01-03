@@ -10,7 +10,7 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 import plotly.graph_objs as go
 import plotly.express as px
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, interp2d
 from scipy.signal import convolve
 from skimage import transform
 import time
@@ -113,7 +113,7 @@ def wig_loss(wig_dis, eta, xvec, pvec):
     s = eta / (1 - eta)
     s_arr = np.exp(-s * (X**2 + P**2))
     s_arr /= np.sum(s_arr)
-    return convolve(wig_dis, s_arr, mode = 'same')
+    return convolve(wig_after_loss(wig_dis, np.sqrt(eta)), s_arr, mode = 'same')
 
 def fact1(n):
     return float(gmpy2.sqrt(gmpy2.fac(n)))
@@ -291,6 +291,146 @@ def irad(hist_2d, thetas):
         final_img += partial(np.interp, xp = x_arr, fp = filtered_img[:, col], left = 0, right = 0)(-x * np.sin(np.deg2rad(theta)) - p * np.cos(np.deg2rad(theta)))
     return final_img
 
+def wig_after_loss(arr, eta):
+    n = arr.shape[0]
+    if eta > 1: raise ValueError("eta must be less than 1.")
+    new_n = int((1 * np.sqrt(eta)) * n)
+    
+    x = np.arange(0, n)
+    y = np.arange(0, n)
+    a = int((n - 1) / eta)
+    b = (a - n) // 2
+    new_x = np.linspace(-2 * b, a, n)
+    new_y = np.linspace(-2 * b, a, n)
+    # new_x = np.linspace(0, int((n - 1) / np.sqrt(eta)), n)
+    # new_y = np.linspace(0, int((n - 1) / np.sqrt(eta)), n)
+    
+    xx, yy = np.meshgrid(x, y)
+    new_xx, new_yy = np.meshgrid(new_x, new_y)
+    
+    interp = interp2d(x, y, arr, kind='cubic')
+    
+    return interp(new_x, new_y)
+
+def _get_fourier_filter(size, filter_name):
+    """Construct the Fourier filter.
+
+    This computation lessens artifacts and removes a small bias as
+    explained in [1], Chap 3. Equation 61.
+
+    Parameters
+    ----------
+    size : int
+        filter size. Must be even.
+    filter_name : str
+        Filter used in frequency domain filtering. Filters available:
+        ramp, shepp-logan, cosine, hamming, hann. Assign None to use
+        no filter.
+
+    Returns
+    -------
+    fourier_filter: ndarray
+        The computed Fourier filter.
+
+    References
+    ----------
+    .. [1] AC Kak, M Slaney, "Principles of Computerized Tomographic
+           Imaging", IEEE Press 1988.
+
+    """
+    n = np.concatenate((np.arange(1, size / 2 + 1, 2, dtype=int),
+                        np.arange(size / 2 - 1, 0, -2, dtype=int)))
+    f = np.zeros(size)
+    f[0] = 0.25
+    f[1::2] = -1 / (np.pi * n) ** 2
+
+    # Computing the ramp filter from the fourier transform of its
+    # frequency domain representation lessens artifacts and removes a
+    # small bias as explained in [1], Chap 3. Equation 61
+    fourier_filter = 2 * np.real(np.fft.fft(f))         # ramp filter
+    if filter_name == "ramp":
+        pass
+    elif filter_name == "shepp-logan":
+        # Start from first element to avoid divide by zero
+        omega = np.pi * np.fft.fftfreq(size)[1:]
+        fourier_filter[1:] *= np.sin(omega) / omega
+    elif filter_name == "cosine":
+        freq = np.linspace(0, np.pi, size, endpoint=False)
+        cosine_filter = np.fft.fftshift(np.sin(freq))
+        fourier_filter *= cosine_filter
+    elif filter_name == "hamming":
+        fourier_filter *= np.fft.fftshift(np.hamming(size))
+    elif filter_name == "hann":
+        fourier_filter *= np.fft.fftshift(np.hanning(size))
+    elif filter_name is None:
+        fourier_filter[:] = 1
+
+    return fourier_filter[:, np.newaxis]
+
+def _sinogram_circle_to_square(sinogram):
+    diagonal = int(np.ceil(np.sqrt(2) * sinogram.shape[0]))
+    pad = diagonal - sinogram.shape[0]
+    old_center = sinogram.shape[0] // 2
+    new_center = diagonal // 2
+    pad_before = new_center - old_center
+    pad_width = ((pad_before, pad - pad_before), (0, 0))
+    return np.pad(sinogram, pad_width, mode='constant', constant_values=0)
+
+def iradon(radon_image, theta=None, output_size=None,
+           filter_name="ramp", interpolation="linear", circle=True,
+           preserve_range=True):
+    """Inverse radon transform.
+        Copied from skimage.transform.iradon
+        Please search the documentation of the same for more details.
+    """
+    if theta is None:
+        theta = np.linspace(0, 180, radon_image.shape[1], endpoint=False)
+
+    angles_count = len(theta)
+    if angles_count != radon_image.shape[1]:
+        raise ValueError("The given ``theta`` does not match the number of "
+                         "projections in ``radon_image``.")
+
+    filter_types = ('ramp', 'shepp-logan', 'cosine', 'hamming', 'hann', None)
+    if filter_name not in filter_types:
+        raise ValueError(f"Unknown filter: {filter_name}")
+
+    # radon_image = convert_to_float(radon_image, preserve_range)
+    # dtype = radon_image.dtype
+
+    img_shape = radon_image.shape[0]
+    if output_size is None:
+        # If output size not specified, estimate from input radon image
+        output_size = img_shape
+        radon_image = _sinogram_circle_to_square(radon_image)
+        img_shape = radon_image.shape[0]
+
+    # Resize image to next power of two (but no less than 64) for
+    # Fourier analysis; speeds up Fourier and lessens artifacts
+    projection_size_padded = max(64, int(2 ** np.ceil(np.log2(2 * img_shape))))
+    pad_width = ((0, projection_size_padded - img_shape), (0, 0))
+    img = np.pad(radon_image, pad_width, mode='constant', constant_values=0)
+
+    # Apply filter in Fourier domain
+    fourier_filter = _get_fourier_filter(projection_size_padded, filter_name)
+    projection = np.fft.fft(img, axis=0) * fourier_filter
+    radon_filtered = np.real(np.fft.ifft(projection, axis=0)[:img_shape, :])
+
+    # Reconstruct image by interpolation
+    reconstructed = np.zeros((output_size, output_size))
+    radius = output_size // 2
+    xpr, ypr = np.mgrid[:output_size, :output_size] - radius
+    x = np.arange(img_shape) - img_shape // 2
+
+    for col, angle in zip(radon_filtered.T, np.deg2rad(theta)):
+        t = -ypr * np.cos(angle) - xpr * np.sin(angle)
+        if interpolation == 'linear':
+            interpolant = partial(np.interp, xp=x, fp=col, left=0, right=0)
+        reconstructed += interpolant(t)
+
+    return reconstructed * np.pi / (2 * angles_count)
+
+
 fin_inp = 0
 no_inp = False
 sim_data = np.array([0])
@@ -360,7 +500,7 @@ elif rho_opt == "Cat State":
     inp0_ = st.number_input("Dimension of the state vector, maximum value is 200", min_value = 10, max_value = 200, step = 1, value = 20)
     inp1_ = st.number_input("How many coherent states do you wish to superpose?, maximum value is 10", min_value = 1, max_value = 10, value = 2)
     if inp1_ <= 10:
-        inp2_ = st.text_input(r"Enter the complex $\alpha$ values, ideally should be less than or equal to $\sqrt{\dfrac{N}{2}}$", value = "1,-1")
+        inp2_ = st.text_input(r"Enter the complex $\alpha$ values, ideally should be less than or equal to $\sqrt{\dfrac{N}{2}}$", value = "2,-2")
         inp3_ = st.text_input(r"Enter the probability (unnormalized) amplitudes (ratios) of each cat state", value = "1, 1")
     else:
         "Please enter a value less than or equal to 10."
@@ -501,6 +641,10 @@ if type(fin_inp) == np.ndarray or show_density == False:
 
     detect_eff = st.radio("Add losses due to non-ideal quantum efficiency?", ("Yes", "No"))
     if detect_eff == "Yes":
+        st.latex(r"""\text{The Wigner Distribution W(x,p) will be now expressed as the} \\ 
+        \text{convolution of the two functions}
+        \\ W(\sqrt{\eta} x, \sqrt{\eta} p) \text{ and } \mathbb{N}( e^{\frac{\eta}{1-\eta}(x^2 + p^2)})""")
+        
         q_eff = st.slider("Quantum efficiency of detector", min_value = 0.4, max_value = 0.99, value = 0.85)
         wig_dist = wig_loss(wig_dist, eta = q_eff, xvec = xv, pvec = pv)
         st.write(r"$\text{Wigner Distribution after detector loss.}$")
@@ -561,10 +705,8 @@ if type(fin_inp) == np.ndarray or show_density == False:
         # fig, ax = plt.subplots()
         # ax.imshow(hist_2d)
         # st.pyplot(fig)
-
-        wig_recon = irad(hist_2d, thetas = phases)
-        # wig_recon = transform.iradon(hist_2d, theta = np.linspace(0, 360, phases))
-
+        wig_recon = iradon(hist_2d, theta = np.linspace(0, 360, phases))
+        # wig_recon = irad(hist_2d, thetas = phases)
         # st.write(wig_recon.shape)
         wig_plot_opt_2 = st.radio("Reconstructed Wigner Distribution", ["2D Plot", "3D Plot"])
         if wig_plot_opt_2 == "2D Plot":
