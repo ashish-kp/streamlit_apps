@@ -18,7 +18,7 @@ import pandas as pd
 import base64
 from functools import partial
 
-st.set_page_config(page_title="My App", initial_sidebar_state="expanded")
+st.set_page_config(page_title="BHD Simulation", initial_sidebar_state="expanded")
 
 plt.style.use("ggplot")
 
@@ -26,6 +26,30 @@ ctx = gmpy2.context()
 ctx.precision = 10000
 
 st.title(r"""$\text{Balanced Homodyne Detection}\\ \text{of Quantum States}$""")
+
+st.latex(r"""\text{This web application allows one to visualize}
+    \\ \text{a set of quantum states, their Wigner distributions}
+    \\ \text{or optical phase space configuration.}""")
+
+st.latex(r"""\text{In the real world, the measurement of these states are}
+    \\ \text{possible by a optical detection method called}
+    \\ \text{Balanced Homodyne Detection.}""")
+
+st.latex(r"""\text{The quantum efficiency of the photodetector, electronic noise}
+    \\ \text{and even the coupling of the light into the diodes (here,}
+    \\ \text{the coupling is assumed to be ideal) affect the observed}
+    \\ \text{Wigner quasiprobability distribution.}""")
+
+st.latex(r"""\text{The user can tweak the above parameters, and see how}
+    \\ \text{they affect the Wigner Distribution.}""")
+
+st.latex(r"""\text{A simulation of the Homodyne Detection is performed, and}
+    \\ \text{one can download the set of quadarture measurements obtained, to}
+    \\ \text{test their own reconstruction methods.}""")
+
+st.latex(r"""\text{Finally, the Inverse Radon Transform is used to obtain the}
+    \\ \text{Wigner Distribution of the Quantum State, which gives us, the}
+    \\ \text{complete information about the system.}""")
 rho_opt = st.radio("Type of state", ("State Vector", "Mixed State", "Coherent State", "Cat State", "Vacuum Squeezed State"))
 
 show_density = True
@@ -723,3 +747,6 @@ if type(fin_inp) == np.ndarray or show_density == False:
             st.plotly_chart(fig)
 
         # st.pyplot(fig)
+
+st.markdown("---")
+st.latex(r"\text{Author - Ashish Kumar Patra, M.Tech QC, DIAT, Pune.}")
