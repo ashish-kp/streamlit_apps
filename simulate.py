@@ -749,5 +749,5 @@ if type(fin_inp) == np.ndarray or show_density == False:
         # st.pyplot(fig)
 
 st.markdown("---")
-st.latex(r"\text{Author - Ashish Kumar Patra, M.Tech QC (2^{nd} Year), DIAT, Pune.}")
+st.latex(r"\text{Author - Ashish Kumar Patra, M.Tech QC, DIAT, Pune.}")
 st.latex(r"\text{Supervisors - Dr.Kanaka Raju Pandiri, Dr.G.Raghavan}")
