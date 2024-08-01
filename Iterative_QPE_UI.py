@@ -27,7 +27,7 @@ def ipe_circ(params):
 st.title('Iterative Quantum Phase Estimation')
 
 # User inputs
-t = st.number_input('Parameter t', min_value=0.0, max_value=1.0, value=0.5, step=0.01)
+t = st.number_input('Parameter t', min_value=0.0, max_value=1.0, value=0.5, step=0.0001)
 num_steps = st.number_input('Number of steps', min_value=1, max_value=20, value=8)
 
 if st.button('Run IPE'):
