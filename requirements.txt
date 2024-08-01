@@ -16,3 +16,4 @@ plotly
 gmpy2
 scikit-image
 seaborn
+pennylane
