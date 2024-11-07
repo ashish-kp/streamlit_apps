@@ -42,9 +42,9 @@ if qiskit_code:
             latex_code = generate_qcircuit_latex_only(qc)
             st.code(latex_code, language="latex")
 
-            if st.button("Copy to Clipboard"):
-                pyperclip.copy(latex_code)
-                st.success("LaTeX code copied to clipboard!")
+            # if st.button("Copy to Clipboard"):
+            #     pyperclip.copy(latex_code)
+            #     st.success("LaTeX code copied to clipboard!")
         else:
             st.error("Please define a 'qc' variable for your QuantumCircuit in the pasted code.")
     except Exception as e:
