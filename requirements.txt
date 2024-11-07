@@ -17,3 +17,5 @@ gmpy2
 scikit-image
 seaborn
 pennylane
+pyperclip
+pylatexenc
