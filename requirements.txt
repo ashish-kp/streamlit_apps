@@ -7,7 +7,7 @@ keras
 tensorflow
 bs4
 qutip
-qiskit
+qiskit==1.1.1
 pandas
 numpy
 sqtdiat==0.0.0.3.17
