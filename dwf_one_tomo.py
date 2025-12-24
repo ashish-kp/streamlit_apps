@@ -1,10 +1,11 @@
 import streamlit as st
 from qiskit import *
+from qiskit_aer import AerSimulator
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 import sqtdiat.qops as sq
-sim = Aer.get_backend('aer_simulator')
+sim = AerSimulator()
 
 st.title("One Qubit Discrete Wigner Distribution Tomography")
 
@@ -73,7 +74,8 @@ def random_counts(phi_ = []):
             dwf_tom.h(0)
             dwf_tom.p(np.pi / 2, 0)
         dwf_tom.measure_all()
-        meas = sim.run(assemble(dwf_tom)).result().get_counts()
+        result = sim.run(dwf_tom, shots=1024).result()
+        meas = result.get_counts()
         if '0' not in meas.keys():
             meas['0'] = 0
         elif '1' not in meas.keys():
